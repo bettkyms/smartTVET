@@ -1,0 +1,48 @@
+{
+  "entities": {
+    "User": {
+      "title": "User Profile",
+      "description": "Stores trainer profile and subscription information.",
+      "type": "object",
+      "properties": {
+        "uid": { "type": "string", "description": "Firebase Auth UID" },
+        "displayName": { "type": "string" },
+        "email": { "type": "string" },
+        "photoURL": { "type": "string" },
+        "role": { "type": "string", "enum": ["admin", "trainer"] },
+        "subscription": { "type": "string", "enum": ["free", "pro", "institution"] },
+        "createdAt": { "type": "string", "format": "date-time" }
+      },
+      "required": ["uid", "email", "role", "subscription"]
+    },
+    "Plan": {
+      "title": "Lesson Plan",
+      "description": "A generated TVET lesson plan or session plan.",
+      "type": "object",
+      "properties": {
+        "id": { "type": "string" },
+        "authorId": { "type": "string" },
+        "authorName": { "type": "string" },
+        "unitTitle": { "type": "string" },
+        "learningPlanHtml": { "type": "string" },
+        "sessionPlansHtml": { "type": "string" },
+        "isPublic": { "type": "boolean" },
+        "price": { "type": "number" },
+        "category": { "type": "string" },
+        "createdAt": { "type": "string", "format": "date-time" },
+        "updatedAt": { "type": "string", "format": "date-time" }
+      },
+      "required": ["authorId", "unitTitle", "learningPlanHtml", "isPublic"]
+    }
+  },
+  "firestore": {
+    "/users/{userId}": {
+      "schema": "User",
+      "description": "Individual user profiles."
+    },
+    "/plans/{planId}": {
+      "schema": "Plan",
+      "description": "All lesson plans, private and public."
+    }
+  }
+}

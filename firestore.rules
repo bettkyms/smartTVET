@@ -1,0 +1,114 @@
+// ===============================================================
+// Assumed Data Model
+// ===============================================================
+//
+// Collection: users
+// Document ID: {userId} (Auth UID)
+// Fields:
+//   - uid: string (required) - Firebase Auth UID
+//   - displayName: string (optional)
+//   - email: string (required) - User email
+//   - photoURL: string (optional)
+//   - role: string (required) - admin, trainer
+//   - subscription: string (required) - free, pro, institution
+//   - createdAt: timestamp (required)
+//
+// Collection: plans
+// Document ID: {planId}
+// Fields:
+//   - id: string (required)
+//   - authorId: string (required) - UID of creator
+//   - authorName: string (required)
+//   - unitTitle: string (required)
+//   - learningPlanHtml: string (required)
+//   - sessionPlansHtml: string (optional)
+//   - isPublic: boolean (required)
+//   - price: number (required)
+//   - category: string (optional)
+//   - createdAt: timestamp (required)
+//   - updatedAt: timestamp (required)
+//
+// ===============================================================
+
+rules_version = '2';
+service cloud.firestore {
+  match /databases/{database}/documents {
+
+    // ===============================================================
+    // Helper Functions
+    // ===============================================================
+    
+    function isAuthenticated() {
+      return request.auth != null;
+    }
+    
+    function isOwner(userId) {
+      return isAuthenticated() && request.auth.uid == userId;
+    }
+    
+    function isDocOwner() {
+      return isAuthenticated() && request.auth.uid == resource.data.authorId;
+    }
+    
+    function isAdmin() {
+      return isAuthenticated() && 
+        (get(/databases/$(database)/documents/users/$(request.auth.uid)).data.role == 'admin' ||
+         (request.auth.token.email == "bettkyms@gmail.com" && request.auth.token.email_verified == true));
+    }
+
+    // ===============================================================
+    // Domain Validators
+    // ===============================================================
+
+    function isValidUser(data) {
+      return data.keys().hasOnly(['uid', 'displayName', 'email', 'photoURL', 'role', 'subscription', 'createdAt']) &&
+             data.uid is string && data.uid.size() > 0 &&
+             data.email is string && data.email.matches("^[a-zA-Z0-9._%+-]+@[a-zA-Z0-9.-]+\\.[a-zA-Z]{2,}$") &&
+             data.role in ['admin', 'trainer'] &&
+             data.subscription in ['free', 'pro', 'institution'] &&
+             data.createdAt is timestamp;
+    }
+
+    function isValidPlan(data) {
+      return data.keys().hasAll(['authorId', 'authorName', 'unitTitle', 'learningPlanHtml', 'isPublic', 'price', 'createdAt', 'updatedAt']) &&
+             data.authorId is string && data.authorId == request.auth.uid &&
+             data.authorName is string && data.authorName.size() < 100 &&
+             data.unitTitle is string && data.unitTitle.size() < 200 &&
+             data.learningPlanHtml is string && data.learningPlanHtml.size() < 1000000 &&
+             data.isPublic is bool &&
+             data.price is number && data.price >= 0 &&
+             data.createdAt is timestamp &&
+             data.updatedAt is timestamp;
+    }
+
+    // ===============================================================
+    // Collection Rules
+    // ===============================================================
+
+    match /users/{userId} {
+      // Users can only read their own profile (PII protection)
+      allow read: if isOwner(userId) || isAdmin();
+      
+      // Create: user must own the ID, role defaults to trainer, subscription to free unless admin
+      allow create: if isOwner(userId) && isValidUser(request.resource.data) && 
+                    (request.resource.data.role == 'trainer' || isAdmin());
+      
+      // Update: owner can update profile but not role/subscription unless admin
+      allow update: if isOwner(userId) && isValidUser(request.resource.data) && 
+                    (request.resource.data.role == resource.data.role && 
+                     request.resource.data.subscription == resource.data.subscription || isAdmin());
+    }
+
+    match /plans/{planId} {
+      // Public plans are readable by anyone, private only by owner/admin
+      allow read: if resource.data.isPublic == true || isDocOwner() || isAdmin();
+      
+      allow create: if isAuthenticated() && isValidPlan(request.resource.data);
+      
+      allow update: if isDocOwner() && isValidPlan(request.resource.data) && 
+                    request.resource.data.authorId == resource.data.authorId;
+      
+      allow delete: if isDocOwner() || isAdmin();
+    }
+  }
+}
