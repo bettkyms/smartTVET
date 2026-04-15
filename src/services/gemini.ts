@@ -26,7 +26,11 @@ export const generateLearningPlan = async (params: {
   const totalHours = totalSessions * 2;
 
   params.onStep('Extracting Metadata & Benchmarks...');
-  const metaInstruction = `You are a TVET CDACC expert. Generate a Metadata table and a Learning Plan table header in HTML.
+  const metaResponse = await ai.models.generateContent({
+    model: 'gemini-3-flash-preview',
+    contents: `Curriculum: ${params.curriculum}. Create the metadata header and 9-column matrix start.`,
+    config: { 
+      systemInstruction: `You are a TVET CDACC expert. Generate a Metadata table and a Learning Plan table header in HTML.
   DO NOT use markdown blocks. Return ONLY HTML.
   
   Structure:
@@ -43,12 +47,8 @@ export const generateLearningPlan = async (params: {
   2. The opening <table> tag and <thead> with EXACTLY 9 headers: 
      WEEK, SESSION NO, SESSION TITLE, LEARNING OUTCOMES, TRAINER ACTIVITIES, TRAINEE ACTIVITIES, Resources & Refs, Learning Checks/ Assessments, Reflections & Date.
   
-  IMPORTANT: DO NOT CLOSE the <table> tag yet.`;
-
-  const metaResponse = await ai.models.generateContent({
-    model: 'gemini-3-flash-preview',
-    contents: `Curriculum: ${params.curriculum}. Create the metadata header and 9-column matrix start.`,
-    config: { systemInstruction: metaInstruction }
+  IMPORTANT: DO NOT CLOSE the <table> tag yet.`
+    }
   });
 
   const cleanResponse = (text: string | undefined) => text?.replace(/```html/g, '').replace(/```/g, '').trim() || '';
@@ -64,7 +64,11 @@ export const generateLearningPlan = async (params: {
     
     params.onStep(`Populating Sessions ${start} to ${end} (Week ${currentWeek})...`);
 
-    const rowInstruction = `You are a TVET CDACC expert. Generate EXACTLY ${end - start + 1} <tr> rows for the matrix.
+    const rowResponse = await ai.models.generateContent({
+      model: 'gemini-3-flash-preview',
+      contents: `Generate matrix rows for sessions ${start} to ${end}.`,
+      config: {
+        systemInstruction: `You are a TVET CDACC expert. Generate EXACTLY ${end - start + 1} <tr> rows for the matrix.
     DO NOT include <table> or <thead>. Return ONLY <tr> elements.
     
     CRITICAL: EVERY ROW MUST HAVE EXACTLY 9 <td> CELLS:
@@ -78,12 +82,8 @@ export const generateLearningPlan = async (params: {
     8. Learning Checks (Knowledge, Skills, Attitudes headings)
     9. Reflections & Date: "Completed on ___/___/${now.getFullYear()}"
 
-    Every session is 2 HOURS. CURRICULUM: ${params.curriculum}`;
-
-    const rowResponse = await ai.models.generateContent({
-      model: 'gemini-3-flash-preview',
-      contents: `Generate matrix rows for sessions ${start} to ${end}.`,
-      config: { systemInstruction: rowInstruction }
+    Every session is 2 HOURS. CURRICULUM: ${params.curriculum}`
+      }
     });
 
     finalHtml += cleanResponse(rowResponse.text);

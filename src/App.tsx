@@ -67,15 +67,47 @@ const AppContent: React.FC = () => {
               </ProtectedRoute>
             } 
           />
-          <Route path="/assessors-tool" element={<AssessmentGeneratorMOD3 />} />
-          <Route path="/curriculum-explorer" element={<CurriculumExplorer />} />
-          <Route path="/screenshot-solver" element={<ScreenshotSolver />} />
-          <Route path="/academic-architect" element={<AcademicArchitect />} />
+          <Route 
+            path="/assessors-tool" 
+            element={
+              <ProtectedRoute>
+                <AssessmentGeneratorMOD3 />
+              </ProtectedRoute>
+            } 
+          />
+          <Route 
+            path="/curriculum-explorer" 
+            element={
+              <ProtectedRoute>
+                <CurriculumExplorer />
+              </ProtectedRoute>
+            } 
+          />
+          <Route 
+            path="/screenshot-solver" 
+            element={
+              <ProtectedRoute>
+                <ScreenshotSolver />
+              </ProtectedRoute>
+            } 
+          />
+          <Route 
+            path="/academic-architect" 
+            element={
+              <ProtectedRoute>
+                <AcademicArchitect />
+              </ProtectedRoute>
+            } 
+          />
           <Route path="/about" element={<AboutUs />} />
           <Route path="/contact" element={<Contact />} />
           <Route 
             path="/dashboard" 
-            element={<Dashboard />} 
+            element={
+              <ProtectedRoute>
+                <Dashboard />
+              </ProtectedRoute>
+            } 
           />
           <Route path="*" element={<Navigate to="/" />} />
         </Routes>

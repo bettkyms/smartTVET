@@ -50,7 +50,11 @@ const AcademicArchitect: React.FC = () => {
     const ai = new GoogleGenAI({ apiKey: apiKey as string });
 
     try {
-      const systemInstruction = `You are an Academic Architect and Curriculum Designer. Generate a professional ${archType === 'curriculum' ? 'Full Curriculum Structure' : archType === 'outline' ? 'Course Outline' : archType === 'mapping' ? 'Competency Map' : archType === 'scheme' ? 'Scheme of Work' : 'Resource List'} in HTML format.
+      const response = await ai.models.generateContent({
+        model: 'gemini-3-flash-preview',
+        contents: `Architect a ${archType} for the course: ${courseTitle} in the ${department} department. Ensure it follows international academic standards.`,
+        config: {
+          systemInstruction: `You are an Academic Architect and Curriculum Designer. Generate a professional ${archType === 'curriculum' ? 'Full Curriculum Structure' : archType === 'outline' ? 'Course Outline' : archType === 'mapping' ? 'Competency Map' : archType === 'scheme' ? 'Scheme of Work' : 'Resource List'} in HTML format.
       DO NOT use markdown blocks. Return ONLY HTML.
       Use professional formatting with clear tables (border="1") and hierarchical structures.
       
@@ -58,12 +62,8 @@ const AcademicArchitect: React.FC = () => {
       If archType is 'outline': Generate a week-by-week course outline with learning objectives and assessment points.
       If archType is 'mapping': Generate a competency mapping matrix linking skills to industry standards.
       If archType is 'scheme': Generate a detailed Scheme of Work (12 weeks) showing topics, sub-topics, teaching methods, and resources.
-      If archType is 'resources': Generate a comprehensive list of required training resources (tools, equipment, materials, and references) for the course.`;
-
-      const response = await ai.models.generateContent({
-        model: 'gemini-3-flash-preview',
-        contents: `Architect a ${archType} for the course: ${courseTitle} in the ${department} department. Ensure it follows international academic standards.`,
-        config: { systemInstruction }
+      If archType is 'resources': Generate a comprehensive list of required training resources (tools, equipment, materials, and references) for the course.`
+        }
       });
 
       const html = response.text || '';

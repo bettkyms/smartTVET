@@ -84,7 +84,11 @@ const Dashboard: React.FC = () => {
     const q = query(collection(db, 'plans'), where('authorId', '==', user.uid));
     const unsubscribe = onSnapshot(q, (snapshot) => {
       const plansData = snapshot.docs.map(doc => ({ id: doc.id, ...doc.data() }));
-      setPlans(plansData.sort((a: any, b: any) => b.createdAt?.seconds - a.createdAt?.seconds));
+      setPlans(plansData.sort((a: any, b: any) => {
+        const timeA = a.createdAt?.seconds || 0;
+        const timeB = b.createdAt?.seconds || 0;
+        return timeB - timeA;
+      }));
     }, (err) => {
       handleFirestoreError(err, OperationType.LIST, 'plans');
     });
@@ -301,10 +305,23 @@ const Dashboard: React.FC = () => {
 
         const response = await ai.models.generateContent({
           model: 'gemini-3-flash-preview',
-          contents: [{ parts: modelParts }]
+          contents: [{ parts: modelParts }],
+          config: {
+            systemInstruction: `You are a TVET curriculum expert. Extract the Unit of Competency title and key curriculum points from the provided text.
+        Return ONLY the extracted information formatted as HTML.
+        
+        Format:
+        <b>Unit of Competency:</b> [Title]
+        <br>
+        <b>Key Points:</b>
+        <ul>
+          <li>[Point 1]</li>
+          ...
+        </ul>`
+          }
         });
 
-        const extractedHtml = cleanResponse(response.text);
+        const extractedHtml = cleanResponse(response.text || '');
         if (extractedHtml.includes('ERROR:')) {
           setError(extractedHtml);
         } else {
@@ -349,7 +366,11 @@ const Dashboard: React.FC = () => {
 
     try {
       setGenerationStep('Extracting Metadata & Benchmarks...');
-      const metaInstruction = `You are a TVET CDACC expert. Generate a Metadata table and a Learning Plan table header in HTML.
+      const metaResponse = await ai.models.generateContent({
+        model: 'gemini-3-flash-preview',
+        contents: `Curriculum: ${curriculum}. Create the metadata header and 9-column matrix start.`,
+        config: {
+          systemInstruction: `You are a TVET CDACC expert. Generate a Metadata table and a Learning Plan table header in HTML.
       DO NOT use markdown blocks. Return ONLY HTML.
       
       Structure:
@@ -366,12 +387,8 @@ const Dashboard: React.FC = () => {
       2. The opening <table> tag and <thead> with EXACTLY 9 headers: 
          WEEK, SESSION NO, SESSION TITLE, LEARNING OUTCOMES, TRAINER ACTIVITIES, TRAINEE ACTIVITIES, Resources & Refs, Learning Checks/ Assessments, Reflections & Date.
       
-      IMPORTANT: DO NOT CLOSE the <table> tag yet.`;
-
-      const metaResponse = await ai.models.generateContent({
-        model: 'gemini-3-flash-preview',
-        contents: `Curriculum: ${curriculum}. Create the metadata header and 9-column matrix start.`,
-        config: { systemInstruction: metaInstruction }
+      IMPORTANT: DO NOT CLOSE the <table> tag yet.`
+        }
       });
 
       let finalHtml = cleanResponse(metaResponse.text || '') + '<tbody>';
@@ -386,7 +403,11 @@ const Dashboard: React.FC = () => {
         
         setGenerationStep(`Populating Sessions ${start} to ${end} (Week ${currentWeek})...`);
 
-        const rowInstruction = `You are a TVET CDACC expert. Generate EXACTLY ${end - start + 1} <tr> rows for the matrix.
+        const rowResponse = await ai.models.generateContent({
+          model: 'gemini-3-flash-preview',
+          contents: `Generate matrix rows for sessions ${start} to ${end}.`,
+          config: {
+            systemInstruction: `You are a TVET CDACC expert. Generate EXACTLY ${end - start + 1} <tr> rows for the matrix.
         DO NOT include <table> or <thead>. Return ONLY <tr> elements.
         
         CRITICAL: EVERY ROW MUST HAVE EXACTLY 9 <td> CELLS:
@@ -400,12 +421,8 @@ const Dashboard: React.FC = () => {
         8. Learning Checks (Knowledge, Skills, Attitudes headings)
         9. Reflections & Date: "Completed on ___/___/${currentYear}"
  
-        Every session is 2 HOURS. CURRICULUM: ${curriculum}`;
-
-        const rowResponse = await ai.models.generateContent({
-          model: 'gemini-3-flash-preview',
-          contents: `Generate matrix rows for sessions ${start} to ${end}.`,
-          config: { systemInstruction: rowInstruction }
+        Every session is 2 HOURS. CURRICULUM: ${curriculum}`
+          }
         });
 
         finalHtml += cleanResponse(rowResponse.text || '');
@@ -445,7 +462,11 @@ const Dashboard: React.FC = () => {
         const end = Math.min((i + 1) * batchSize, totalSessions);
         setGenerationStep(`Expanding Plans ${start}-${end}...`);
 
-        const spSystemInstruction = `You are a TVET CDACC expert. Generate highly detailed, INDEPENDENT Session Plans in HTML for A4 PORTRAIT.
+        const spResponse = await ai.models.generateContent({
+          model: 'gemini-3-flash-preview',
+          contents: `Generate full Portrait Session Plans for Sessions ${start} to ${end} based on the Learning Plan matrix provided. Content source: ${learningPlan.substring(0, 15000)}. Each session plan must be independent and use solid borders.`,
+          config: {
+            systemInstruction: `You are a TVET CDACC expert. Generate highly detailed, INDEPENDENT Session Plans in HTML for A4 PORTRAIT.
         DO NOT use markdown blocks. Return ONLY HTML.
         
         STRICT RULES FOR EVERY SESSION:
@@ -470,12 +491,8 @@ const Dashboard: React.FC = () => {
            * 15 Min | Post-assessment | [Text] | [Text]
            * 10 Min | Closure | [Text] | [Text]
         
-        Insert <div class="page-break"></div> strictly BETWEEN sessions.`;
-
-        const spResponse = await ai.models.generateContent({
-          model: 'gemini-3-flash-preview',
-          contents: `Generate full Portrait Session Plans for Sessions ${start} to ${end} based on the Learning Plan matrix provided. Content source: ${learningPlan.substring(0, 15000)}. Each session plan must be independent and use solid borders.`,
-          config: { systemInstruction: spSystemInstruction }
+        Insert <div class="page-break"></div> strictly BETWEEN sessions.`
+          }
         });
 
         fullSpContent += cleanResponse(spResponse.text || '');

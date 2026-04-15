@@ -130,41 +130,7 @@ const CurriculumExplorer: React.FC = () => {
           ]
         }`,
         config: {
-          responseMimeType: "application/json",
-          responseSchema: {
-            type: Type.OBJECT,
-            properties: {
-              courseTitle: { type: Type.STRING },
-              modules: {
-                type: Type.ARRAY,
-                items: {
-                  type: Type.OBJECT,
-                  properties: {
-                    title: { type: Type.STRING },
-                    topics: {
-                      type: Type.ARRAY,
-                      items: {
-                        type: Type.OBJECT,
-                        properties: {
-                          title: { type: Type.STRING },
-                          subtopics: {
-                            type: Type.ARRAY,
-                            items: {
-                              type: Type.OBJECT,
-                              properties: {
-                                title: { type: Type.STRING },
-                                description: { type: Type.STRING }
-                              }
-                            }
-                          }
-                        }
-                      }
-                    }
-                  }
-                }
-              }
-            }
-          }
+          responseMimeType: "application/json"
         }
       });
 
@@ -191,13 +157,11 @@ const CurriculumExplorer: React.FC = () => {
     const ai = new GoogleGenAI({ apiKey: apiKey as string });
 
     try {
-      const prompt = type === 'subtopic' 
-        ? `Generate comprehensive technical notes for the subtopic "${title}" which is part of the topic "${parentTitle}" in the course "${curriculumData?.courseTitle}". Include definitions, key concepts, examples, and a summary.`
-        : `Generate comprehensive technical notes for the topic "${title}" in the course "${curriculumData?.courseTitle}". Provide a high-level overview and then detailed notes for its core components.`;
-
       const response = await ai.models.generateContent({
         model: 'gemini-3-flash-preview',
-        contents: prompt,
+        contents: type === 'subtopic' 
+          ? `Generate comprehensive technical notes for the subtopic "${title}" which is part of the topic "${parentTitle}" in the course "${curriculumData?.courseTitle}". Include definitions, key concepts, examples, and a summary.`
+          : `Generate comprehensive technical notes for the topic "${title}" in the course "${curriculumData?.courseTitle}". Provide a high-level overview and then detailed notes for its core components.`,
         config: {
           systemInstruction: "You are an expert TVET educator. Generate professional, clear, and detailed technical notes in HTML format. Use proper headings, bullet points, and tables where necessary."
         }
@@ -222,13 +186,11 @@ const CurriculumExplorer: React.FC = () => {
     const ai = new GoogleGenAI({ apiKey: apiKey as string });
 
     try {
-      const prompt = `Generate a comprehensive quiz for the ${selectedItem.type} "${selectedItem.title}" in the course "${curriculumData?.courseTitle}". 
-      Include 5 Multiple Choice Questions and 5 True/False questions. 
-      Provide the answers at the end.`;
-
       const response = await ai.models.generateContent({
         model: 'gemini-3-flash-preview',
-        contents: prompt,
+        contents: `Generate a comprehensive quiz for the ${selectedItem.type} "${selectedItem.title}" in the course "${curriculumData?.courseTitle}". 
+      Include 5 Multiple Choice Questions and 5 True/False questions. 
+      Provide the answers at the end.`,
         config: {
           systemInstruction: "You are an expert TVET assessor. Generate a professional quiz in HTML format. Use clear formatting, radio-button style indicators (non-functional), and a hidden or separate answer key section."
         }
@@ -260,7 +222,11 @@ const CurriculumExplorer: React.FC = () => {
         config: {
           systemInstruction: `You are an expert TVET Tutor. You are helping a student with the ${selectedItem.type} "${selectedItem.title}" in the course "${curriculumData?.courseTitle}". 
           Provide clear, helpful, and technically accurate answers. Use examples where possible.`
-        }
+        },
+        history: chatMessages.map(m => ({
+          role: m.role === 'user' ? 'user' : 'model',
+          parts: [{ text: m.text }],
+        })),
       });
 
       const response = await chat.sendMessage({ message: chatInput });
@@ -287,13 +253,11 @@ const CurriculumExplorer: React.FC = () => {
     const ai = new GoogleGenAI({ apiKey: apiKey as string });
 
     try {
-      const prompt = target === 'notes'
-        ? `Generate detailed training notes based on this session plan:\n\n${sessionPlanInput}`
-        : `Generate a structured PowerPoint presentation outline (Slide by Slide) based on this session plan. For each slide, provide a Title and Bullet Points for content:\n\n${sessionPlanInput}`;
-
       const response = await ai.models.generateContent({
         model: 'gemini-3-flash-preview',
-        contents: prompt,
+        contents: target === 'notes'
+          ? `Generate detailed training notes based on this session plan:\n\n${sessionPlanInput}`
+          : `Generate a structured PowerPoint presentation outline (Slide by Slide) based on this session plan. For each slide, provide a Title and Bullet Points for content:\n\n${sessionPlanInput}`,
         config: {
           systemInstruction: `You are a professional corporate trainer. Generate ${target === 'notes' ? 'comprehensive training notes' : 'a structured PPT outline'} in HTML format.`
         }

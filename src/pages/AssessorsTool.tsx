@@ -50,7 +50,11 @@ const AssessorsTool: React.FC = () => {
     const ai = new GoogleGenAI({ apiKey: apiKey as string });
 
     try {
-      const systemInstruction = `You are a TVET CDACC Assessment Expert. Generate a professional ${toolType} assessment tool in HTML format.
+      const response = await ai.models.generateContent({
+        model: 'gemini-3-flash-preview',
+        contents: `Generate a ${toolType} assessment tool for the unit: ${unitTitle} (${unitCode}). Ensure it follows CDACC standards.`,
+        config: {
+          systemInstruction: `You are a TVET CDACC Assessment Expert. Generate a professional ${toolType} assessment tool in HTML format.
       DO NOT use markdown blocks. Return ONLY HTML.
       Use professional tables with solid borders (border="1").
       
@@ -64,12 +68,8 @@ const AssessorsTool: React.FC = () => {
       If toolType is 'iv-form': Generate an Internal Verification (IV) form for pre-assessment verification of the tool's quality and alignment.
       If toolType is 'moderation': Generate a post-assessment moderation report template to ensure consistency in marking.
       If toolType is 'feedback': Generate a structured assessment feedback form for the candidate, highlighting strengths and areas for improvement.
-      If toolType is 'rpl': Generate an RPL (Recognition of Prior Learning) assessment plan and evidence requirement matrix.`;
-
-      const response = await ai.models.generateContent({
-        model: 'gemini-3-flash-preview',
-        contents: `Generate a ${toolType} assessment tool for the unit: ${unitTitle} (${unitCode}). Ensure it follows CDACC standards.`,
-        config: { systemInstruction }
+      If toolType is 'rpl': Generate an RPL (Recognition of Prior Learning) assessment plan and evidence requirement matrix.`
+        }
       });
 
       const html = response.text || '';
