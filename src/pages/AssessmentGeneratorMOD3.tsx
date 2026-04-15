@@ -75,7 +75,11 @@ const AssessmentGeneratorMOD3: React.FC = () => {
 
     updateSlot(slotId, { isLoading: true, error: '', content: null });
 
-    const apiKey = process.env.API_KEY || process.env.GEMINI_API_KEY || import.meta.env.VITE_API_KEY;
+    const apiKey = process.env.GEMINI_API_KEY || process.env.API_KEY || import.meta.env.VITE_GEMINI_API_KEY || import.meta.env.VITE_API_KEY;
+    if (!apiKey || apiKey === 'undefined' || apiKey === 'null' || apiKey.trim() === '') {
+      updateSlot(slotId, { error: "Gemini API Key not found. Please check your environment variables.", isLoading: false });
+      return;
+    }
     const ai = new GoogleGenAI({ apiKey: apiKey as string });
     const slot = slots.find(s => s.id === slotId);
     const isPractical = knqfLevel < 5;

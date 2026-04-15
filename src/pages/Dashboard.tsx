@@ -169,9 +169,12 @@ const Dashboard: React.FC = () => {
 
   // --- API KEY CHECK ---
   useEffect(() => {
-    const apiKey = process.env.API_KEY || process.env.GEMINI_API_KEY || import.meta.env.VITE_API_KEY;
-    const keyIsAvailable = !!apiKey && apiKey.trim() !== '' && apiKey !== 'undefined';
+    const apiKey = process.env.GEMINI_API_KEY || process.env.API_KEY || import.meta.env.VITE_GEMINI_API_KEY || import.meta.env.VITE_API_KEY;
+    const keyIsAvailable = !!apiKey && apiKey.trim() !== '' && apiKey !== 'undefined' && apiKey !== 'null';
     setIsApiConfigured(keyIsAvailable);
+    if (!keyIsAvailable) {
+      console.warn("Gemini API Key is not configured. AI features will be disabled.");
+    }
   }, []);
 
   const handleLogoUpload = (e: React.ChangeEvent<HTMLInputElement>) => {

@@ -1,8 +1,10 @@
 import { GoogleGenAI } from "@google/genai";
 
 const getAI = () => {
-  const apiKey = process.env.API_KEY || process.env.GEMINI_API_KEY || import.meta.env.VITE_API_KEY;
-  if (!apiKey || apiKey === 'undefined') throw new Error("API Key not found in environment.");
+  const apiKey = process.env.GEMINI_API_KEY || process.env.API_KEY || import.meta.env.VITE_GEMINI_API_KEY || import.meta.env.VITE_API_KEY;
+  if (!apiKey || apiKey === 'undefined' || apiKey === 'null' || apiKey.trim() === '') {
+    throw new Error("Gemini API Key not found in environment. Please check your settings.");
+  }
   return new GoogleGenAI({ apiKey });
 };
 
