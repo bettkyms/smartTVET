@@ -31,8 +31,8 @@ const AssessorsTool: React.FC = () => {
   const [isApiConfigured, setIsApiConfigured] = useState(false);
 
   useEffect(() => {
-    const apiKey = process.env.API_KEY;
-    const keyIsAvailable = !!apiKey && apiKey.trim() !== '';
+    const apiKey = process.env.API_KEY || process.env.GEMINI_API_KEY || import.meta.env.VITE_API_KEY;
+    const keyIsAvailable = !!apiKey && apiKey.trim() !== '' && apiKey !== 'undefined';
     setIsApiConfigured(keyIsAvailable);
     if (profile?.institutionLogo) setCustomLogo(profile.institutionLogo);
   }, [profile]);

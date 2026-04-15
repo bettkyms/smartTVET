@@ -165,8 +165,8 @@ const Dashboard: React.FC = () => {
 
   // --- API KEY CHECK ---
   useEffect(() => {
-    const apiKey = process.env.API_KEY;
-    const keyIsAvailable = !!apiKey && apiKey.trim() !== '';
+    const apiKey = process.env.API_KEY || process.env.GEMINI_API_KEY || import.meta.env.VITE_API_KEY;
+    const keyIsAvailable = !!apiKey && apiKey.trim() !== '' && apiKey !== 'undefined';
     setIsApiConfigured(keyIsAvailable);
   }, []);
 

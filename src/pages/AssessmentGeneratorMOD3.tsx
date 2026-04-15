@@ -55,8 +55,8 @@ const AssessmentGeneratorMOD3: React.FC = () => {
   const fileInputRef = useRef<HTMLInputElement>(null);
 
   useEffect(() => {
-    const apiKey = process.env.API_KEY;
-    const keyIsAvailable = !!apiKey && apiKey.trim() !== '';
+    const apiKey = process.env.API_KEY || process.env.GEMINI_API_KEY || import.meta.env.VITE_API_KEY;
+    const keyIsAvailable = !!apiKey && apiKey.trim() !== '' && apiKey !== 'undefined';
     setIsApiConfigured(keyIsAvailable);
     
     if (profile?.institutionName) setSchoolName(profile.institutionName);
