@@ -262,7 +262,8 @@ const Dashboard: React.FC = () => {
       setGenerationStep('Reading document content...');
       
       try {
-        const ai = new GoogleGenAI({ apiKey: process.env.API_KEY });
+    const apiKey = process.env.API_KEY || process.env.GEMINI_API_KEY || import.meta.env.VITE_API_KEY;
+    const ai = new GoogleGenAI({ apiKey: apiKey as string });
         let modelParts: any[] = [];
 
         const extractionInstruction = `You are a TVET CDACC document extractor. 
@@ -343,7 +344,8 @@ const Dashboard: React.FC = () => {
     const currentYear = now.getFullYear();
     const totalSessions = parseInt(numWeeks) * parseInt(numLessons);
     const totalHours = totalSessions * 2; 
-    const ai = new GoogleGenAI({ apiKey: process.env.API_KEY });
+    const apiKey = process.env.API_KEY || process.env.GEMINI_API_KEY || import.meta.env.VITE_API_KEY;
+    const ai = new GoogleGenAI({ apiKey: apiKey as string });
 
     try {
       setGenerationStep('Extracting Metadata & Benchmarks...');
@@ -430,7 +432,8 @@ const Dashboard: React.FC = () => {
 
     const totalSessions = parseInt(numWeeks) * parseInt(numLessons);
     const currentYear = new Date().getFullYear();
-    const ai = new GoogleGenAI({ apiKey: process.env.API_KEY });
+    const apiKey = process.env.API_KEY || process.env.GEMINI_API_KEY || import.meta.env.VITE_API_KEY;
+    const ai = new GoogleGenAI({ apiKey: apiKey as string });
 
     try {
       const batchSize = 2; 

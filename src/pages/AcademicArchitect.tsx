@@ -46,7 +46,8 @@ const AcademicArchitect: React.FC = () => {
     setIsLoading(true);
     setError('');
 
-    const ai = new GoogleGenAI({ apiKey: process.env.API_KEY });
+    const apiKey = process.env.API_KEY || process.env.GEMINI_API_KEY || import.meta.env.VITE_API_KEY;
+    const ai = new GoogleGenAI({ apiKey: apiKey as string });
 
     try {
       const systemInstruction = `You are an Academic Architect and Curriculum Designer. Generate a professional ${archType === 'curriculum' ? 'Full Curriculum Structure' : archType === 'outline' ? 'Course Outline' : archType === 'mapping' ? 'Competency Map' : archType === 'scheme' ? 'Scheme of Work' : 'Resource List'} in HTML format.

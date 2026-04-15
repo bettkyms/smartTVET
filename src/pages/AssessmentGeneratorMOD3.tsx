@@ -75,7 +75,8 @@ const AssessmentGeneratorMOD3: React.FC = () => {
 
     updateSlot(slotId, { isLoading: true, error: '', content: null });
 
-    const ai = new GoogleGenAI({ apiKey: process.env.API_KEY });
+    const apiKey = process.env.API_KEY || process.env.GEMINI_API_KEY || import.meta.env.VITE_API_KEY;
+    const ai = new GoogleGenAI({ apiKey: apiKey as string });
     const slot = slots.find(s => s.id === slotId);
     const isPractical = knqfLevel < 5;
 

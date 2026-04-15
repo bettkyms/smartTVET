@@ -82,7 +82,8 @@ const ScreenshotSolver: React.FC = () => {
     setAnalysis('');
     setError('');
 
-    const ai = new GoogleGenAI({ apiKey: process.env.API_KEY });
+    const apiKey = process.env.API_KEY || process.env.GEMINI_API_KEY || import.meta.env.VITE_API_KEY;
+    const ai = new GoogleGenAI({ apiKey: apiKey as string });
 
     try {
       const base64Data = screenshot.split(',')[1];

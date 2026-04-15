@@ -46,7 +46,8 @@ const AssessorsTool: React.FC = () => {
     setIsLoading(true);
     setError('');
 
-    const ai = new GoogleGenAI({ apiKey: process.env.API_KEY });
+    const apiKey = process.env.API_KEY || process.env.GEMINI_API_KEY || import.meta.env.VITE_API_KEY;
+    const ai = new GoogleGenAI({ apiKey: apiKey as string });
 
     try {
       const systemInstruction = `You are a TVET CDACC Assessment Expert. Generate a professional ${toolType} assessment tool in HTML format.

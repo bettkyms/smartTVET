@@ -101,7 +101,8 @@ const CurriculumExplorer: React.FC = () => {
     setIsLoading(true);
     setError('');
 
-    const ai = new GoogleGenAI({ apiKey: process.env.API_KEY });
+    const apiKey = process.env.API_KEY || process.env.GEMINI_API_KEY || import.meta.env.VITE_API_KEY;
+    const ai = new GoogleGenAI({ apiKey: apiKey as string });
 
     try {
       const response = await ai.models.generateContent({
@@ -186,7 +187,8 @@ const CurriculumExplorer: React.FC = () => {
     setGeneratedQuiz('');
     setChatMessages([]);
 
-    const ai = new GoogleGenAI({ apiKey: process.env.API_KEY });
+    const apiKey = process.env.API_KEY || process.env.GEMINI_API_KEY || import.meta.env.VITE_API_KEY;
+    const ai = new GoogleGenAI({ apiKey: apiKey as string });
 
     try {
       const prompt = type === 'subtopic' 
@@ -216,7 +218,8 @@ const CurriculumExplorer: React.FC = () => {
     if (generatedQuiz) return;
     
     setIsGeneratingQuiz(true);
-    const ai = new GoogleGenAI({ apiKey: process.env.API_KEY });
+    const apiKey = process.env.API_KEY || process.env.GEMINI_API_KEY || import.meta.env.VITE_API_KEY;
+    const ai = new GoogleGenAI({ apiKey: apiKey as string });
 
     try {
       const prompt = `Generate a comprehensive quiz for the ${selectedItem.type} "${selectedItem.title}" in the course "${curriculumData?.courseTitle}". 
@@ -248,7 +251,8 @@ const CurriculumExplorer: React.FC = () => {
     setChatInput('');
     setIsChatLoading(true);
 
-    const ai = new GoogleGenAI({ apiKey: process.env.API_KEY });
+    const apiKey = process.env.API_KEY || process.env.GEMINI_API_KEY || import.meta.env.VITE_API_KEY;
+    const ai = new GoogleGenAI({ apiKey: apiKey as string });
 
     try {
       const chat = ai.chats.create({
@@ -279,7 +283,8 @@ const CurriculumExplorer: React.FC = () => {
     setIsLoading(true);
     setError('');
 
-    const ai = new GoogleGenAI({ apiKey: process.env.API_KEY });
+    const apiKey = process.env.API_KEY || process.env.GEMINI_API_KEY || import.meta.env.VITE_API_KEY;
+    const ai = new GoogleGenAI({ apiKey: apiKey as string });
 
     try {
       const prompt = target === 'notes'

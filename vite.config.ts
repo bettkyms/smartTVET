@@ -22,6 +22,19 @@ export default defineConfig(({ mode }) => {
         alias: {
           '@': path.resolve(__dirname, '.'),
         }
+      },
+      build: {
+        chunkSizeWarningLimit: 1000,
+        rollupOptions: {
+          output: {
+            manualChunks: {
+              'vendor-react': ['react', 'react-dom', 'react-router-dom'],
+              'vendor-firebase': ['firebase/app', 'firebase/auth', 'firebase/firestore'],
+              'vendor-utils': ['docx', 'file-saver', 'mammoth', 'mermaid'],
+              'vendor-ui': ['framer-motion', 'lucide-react', 'react-markdown']
+            }
+          }
+        }
       }
     };
 });
