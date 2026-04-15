@@ -13,21 +13,29 @@ import {
   ChevronDown,
   BookOpen,
   FileText,
-  PenTool
+  PenTool,
+  Settings,
+  Layers,
+  Sun,
+  Moon,
+  Zap
 } from 'lucide-react';
 import { useAuth } from '../contexts/AuthContext';
+import { useTheme } from '../contexts/ThemeContext';
 
 const Navbar: React.FC = () => {
   const [isOpen, setIsOpen] = useState(false);
   const [showUserMenu, setShowUserMenu] = useState(false);
   const location = useLocation();
   const { user, profile, logout } = useAuth();
+  const { theme, toggleTheme } = useTheme();
 
   const navLinks = [
     { name: 'Home', path: '/', icon: Sparkles },
     { name: 'Planner', path: '/dashboard', icon: LayoutDashboard },
     { name: 'Assessors Tool', path: '/assessors-tool', icon: PenTool },
-    { name: 'Notes/Guides', path: '/assessors-guide', icon: BookOpen },
+    { name: 'Notes/Guides', path: '/curriculum-explorer', icon: BookOpen },
+    { name: 'Solver', path: '/screenshot-solver', icon: Zap },
     { name: 'Academic Architect', path: '/academic-architect', icon: FileText },
   ];
 
@@ -72,6 +80,14 @@ const Navbar: React.FC = () => {
 
             <div className="w-px h-6 bg-slate-100 mx-4" />
 
+            <button
+              onClick={toggleTheme}
+              className="p-2.5 rounded-xl text-slate-600 hover:bg-slate-50 hover:text-indigo-600 transition-all mr-2"
+              title={theme === 'light' ? 'Switch to Dark Mode' : 'Switch to Light Mode'}
+            >
+              {theme === 'light' ? <Moon className="w-5 h-5" /> : <Sun className="w-5 h-5" />}
+            </button>
+
             {user ? (
               <div className="relative">
                 <button 
@@ -106,6 +122,14 @@ const Navbar: React.FC = () => {
                         <p className="text-xs font-bold text-slate-400 uppercase tracking-widest mb-1">Signed in as</p>
                         <p className="text-sm font-bold text-slate-900 truncate">{user.email}</p>
                       </div>
+                      <Link 
+                        to="/profile" 
+                        onClick={() => setShowUserMenu(false)}
+                        className="flex items-center gap-3 px-4 py-2.5 text-sm font-bold text-slate-600 hover:bg-slate-50 rounded-xl transition-all"
+                      >
+                        <User className="w-4 h-4" />
+                        My Profile
+                      </Link>
                       <Link 
                         to="/dashboard" 
                         onClick={() => setShowUserMenu(false)}

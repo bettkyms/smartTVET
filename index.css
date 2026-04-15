@@ -15,7 +15,11 @@
 
 @layer base {
   body {
-    @apply bg-[#f8fafc] text-slate-900 antialiased font-sans selection:bg-indigo-100 selection:text-indigo-900;
+    @apply bg-[#f8fafc] text-slate-900 antialiased font-sans selection:bg-indigo-100 selection:text-indigo-900 transition-colors duration-300;
+  }
+  
+  .dark body {
+    @apply bg-slate-950 text-slate-100;
   }
   
   h1, h2, h3, h4, h5, h6 {
@@ -31,17 +35,33 @@
   .glass-card {
     @apply bg-white/70 backdrop-blur-xl border border-white/40 shadow-[0_8px_32px_0_rgba(31,38,135,0.07)];
   }
+
+  .dark .glass-card {
+    @apply bg-slate-900/70 border-slate-800/50 shadow-[0_8px_32px_0_rgba(0,0,0,0.3)];
+  }
   
   .btn-primary {
     @apply px-8 py-4 bg-indigo-600 text-white rounded-2xl font-black hover:bg-indigo-700 transition-all shadow-xl shadow-indigo-200 active:scale-95 flex items-center justify-center gap-3 text-sm uppercase tracking-widest;
+  }
+
+  .dark .btn-primary {
+    @apply shadow-indigo-900/20;
   }
   
   .btn-secondary {
     @apply px-8 py-4 bg-white text-slate-900 border border-slate-200 rounded-2xl font-black hover:bg-slate-50 transition-all active:scale-95 flex items-center justify-center gap-3 text-sm uppercase tracking-widest;
   }
 
+  .dark .btn-secondary {
+    @apply bg-slate-900 text-slate-100 border-slate-800 hover:bg-slate-800;
+  }
+
   .input-field {
     @apply w-full px-6 py-4 bg-white border border-slate-200 rounded-2xl text-sm font-bold outline-none focus:ring-4 focus:ring-indigo-500/10 focus:border-indigo-500 transition-all placeholder:text-slate-300;
+  }
+
+  .dark .input-field {
+    @apply bg-slate-900 border-slate-800 text-slate-100 placeholder:text-slate-600 focus:ring-indigo-500/20;
   }
 
   .sidebar-item {
@@ -52,8 +72,16 @@
     @apply bg-indigo-600 text-white shadow-xl shadow-indigo-100 border-indigo-500;
   }
 
+  .dark .sidebar-item-active {
+    @apply shadow-indigo-900/40;
+  }
+
   .sidebar-item-inactive {
     @apply text-slate-500 hover:bg-slate-50 hover:border-slate-100;
+  }
+
+  .dark .sidebar-item-inactive {
+    @apply text-slate-400 hover:bg-slate-900 hover:border-slate-800;
   }
 }
 
@@ -82,4 +110,53 @@
 
 .animate-float {
   animation: float 6s ease-in-out infinite;
+}
+
+/* Prose Styles for AI Content */
+.prose {
+  @apply text-slate-700 leading-relaxed;
+}
+
+.dark .prose {
+  @apply text-slate-300;
+}
+
+.prose h1, .prose h2, .prose h3 {
+  @apply text-slate-900 font-black mt-8 mb-4 uppercase tracking-tight;
+}
+
+.dark .prose h1, .dark .prose h2, .dark .prose h3 {
+  @apply text-white;
+}
+
+.prose table {
+  @apply w-full border-collapse border border-slate-200 my-6 text-sm;
+}
+
+.dark .prose table {
+  @apply border-slate-800;
+}
+
+.prose th {
+  @apply bg-slate-50 border border-slate-200 p-3 text-left font-black text-slate-900 uppercase tracking-wider text-[10px];
+}
+
+.dark .prose th {
+  @apply bg-slate-900 border-slate-800 text-slate-200;
+}
+
+.prose td {
+  @apply border border-slate-200 p-3 align-top;
+}
+
+.dark .prose td {
+  @apply border-slate-800;
+}
+
+.prose b, .prose strong {
+  @apply font-black text-slate-900;
+}
+
+.dark .prose b, .dark .prose strong {
+  @apply text-white;
 }

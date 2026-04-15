@@ -20,7 +20,7 @@ const Contact: React.FC = () => {
   };
 
   return (
-    <div className="bg-white min-h-screen">
+    <div className="bg-white dark:bg-slate-950 min-h-screen transition-colors duration-300">
       {/* Hero Section */}
       <section className="relative py-32 bg-slate-900 text-white overflow-hidden">
         <div className="absolute inset-0 z-0">
@@ -56,48 +56,48 @@ const Contact: React.FC = () => {
           <div className="grid lg:grid-cols-3 gap-12">
             {/* Contact Info */}
             <div className="lg:col-span-1 space-y-8">
-              <div className="bg-white p-10 rounded-[2.5rem] border border-slate-100 shadow-xl">
-                <h3 className="text-2xl font-bold text-slate-900 mb-8 font-display">Contact Details</h3>
+              <div className="bg-white dark:bg-slate-900 p-10 rounded-[2.5rem] border border-slate-100 dark:border-slate-800 shadow-xl">
+                <h3 className="text-2xl font-bold text-slate-900 dark:text-white mb-8 font-display">Contact Details</h3>
                 
                 <div className="space-y-8">
                   <div className="flex items-start gap-5 group">
-                    <div className="w-12 h-12 bg-indigo-50 rounded-2xl flex items-center justify-center group-hover:bg-indigo-600 group-hover:text-white transition-all shadow-sm">
-                      <Mail className="w-6 h-6" />
+                    <div className="w-12 h-12 bg-indigo-50 dark:bg-indigo-900/30 rounded-2xl flex items-center justify-center group-hover:bg-indigo-600 group-hover:text-white transition-all shadow-sm">
+                      <Mail className="w-6 h-6 text-indigo-600 dark:text-indigo-400 group-hover:text-white" />
                     </div>
                     <div>
                       <p className="text-xs font-bold text-slate-400 uppercase tracking-widest mb-1">Email Us</p>
-                      <p className="text-lg font-bold text-slate-900">support@smarttvet.com</p>
+                      <p className="text-lg font-bold text-slate-900 dark:text-white">support@smarttvet.com</p>
                     </div>
                   </div>
 
                   <div className="flex items-start gap-5 group">
-                    <div className="w-12 h-12 bg-emerald-50 rounded-2xl flex items-center justify-center group-hover:bg-emerald-600 group-hover:text-white transition-all shadow-sm">
-                      <Phone className="w-6 h-6" />
+                    <div className="w-12 h-12 bg-emerald-50 dark:bg-emerald-900/30 rounded-2xl flex items-center justify-center group-hover:bg-emerald-600 group-hover:text-white transition-all shadow-sm">
+                      <Phone className="w-6 h-6 text-emerald-600 dark:text-emerald-400 group-hover:text-white" />
                     </div>
                     <div>
                       <p className="text-xs font-bold text-slate-400 uppercase tracking-widest mb-1">Call Us</p>
-                      <p className="text-lg font-bold text-slate-900">+254 790 172 531</p>
+                      <p className="text-lg font-bold text-slate-900 dark:text-white">+254 790 172 531</p>
                     </div>
                   </div>
 
                   <div className="flex items-start gap-5 group">
-                    <div className="w-12 h-12 bg-amber-50 rounded-2xl flex items-center justify-center group-hover:bg-amber-600 group-hover:text-white transition-all shadow-sm">
-                      <MapPin className="w-6 h-6" />
+                    <div className="w-12 h-12 bg-amber-50 dark:bg-amber-900/30 rounded-2xl flex items-center justify-center group-hover:bg-amber-600 group-hover:text-white transition-all shadow-sm">
+                      <MapPin className="w-6 h-6 text-amber-600 dark:text-amber-400 group-hover:text-white" />
                     </div>
                     <div>
                       <p className="text-xs font-bold text-slate-400 uppercase tracking-widest mb-1">Location</p>
-                      <p className="text-lg font-bold text-slate-900">Nairobi, Kenya</p>
+                      <p className="text-lg font-bold text-slate-900 dark:text-white">Nairobi, Kenya</p>
                     </div>
                   </div>
                 </div>
 
-                <div className="mt-12 pt-12 border-t border-slate-50">
-                  <p className="text-sm font-bold text-slate-900 mb-6 uppercase tracking-widest">Connect on WhatsApp</p>
+                <div className="mt-12 pt-12 border-t border-slate-50 dark:border-slate-800">
+                  <p className="text-sm font-bold text-slate-900 dark:text-white mb-6 uppercase tracking-widest">Connect on WhatsApp</p>
                   <a 
                     href="https://wa.me/254790172531" 
                     target="_blank" 
                     rel="noopener noreferrer"
-                    className="flex items-center justify-center gap-3 w-full py-4 bg-emerald-600 text-white rounded-2xl font-bold hover:bg-emerald-700 transition-all shadow-lg shadow-emerald-100"
+                    className="flex items-center justify-center gap-3 w-full py-4 bg-emerald-600 text-white rounded-2xl font-bold hover:bg-emerald-700 transition-all shadow-lg shadow-emerald-100 dark:shadow-none"
                   >
                     <MessageCircle className="w-6 h-6" />
                     Start Chatting
@@ -122,31 +122,31 @@ const Contact: React.FC = () => {
 
             {/* Contact Form */}
             <div className="lg:col-span-2">
-              <div className="bg-white p-12 lg:p-16 rounded-[3rem] border border-slate-100 shadow-2xl">
+              <div className="bg-white dark:bg-slate-900 p-12 lg:p-16 rounded-[3rem] border border-slate-100 dark:border-slate-800 shadow-2xl">
                 {formState === 'success' ? (
                   <motion.div 
                     initial={{ opacity: 0, scale: 0.9 }}
                     animate={{ opacity: 1, scale: 1 }}
                     className="text-center py-20"
                   >
-                    <div className="w-24 h-24 bg-emerald-100 rounded-[2rem] flex items-center justify-center mx-auto mb-8">
-                      <CheckCircle2 className="w-12 h-12 text-emerald-600" />
+                    <div className="w-24 h-24 bg-emerald-100 dark:bg-emerald-900/30 rounded-[2rem] flex items-center justify-center mx-auto mb-8">
+                      <CheckCircle2 className="w-12 h-12 text-emerald-600 dark:text-emerald-400" />
                     </div>
-                    <h3 className="text-4xl font-black text-slate-900 mb-4 font-display">Message Sent!</h3>
-                    <p className="text-slate-500 text-lg font-medium max-w-sm mx-auto">
+                    <h3 className="text-4xl font-black text-slate-900 dark:text-white mb-4 font-display">Message Sent!</h3>
+                    <p className="text-slate-500 dark:text-slate-400 text-lg font-medium max-w-sm mx-auto">
                       Thank you for reaching out. Our team will get back to you within 24 hours.
                     </p>
                     <button 
                       onClick={() => setFormState('idle')}
-                      className="mt-12 text-indigo-600 font-bold hover:underline"
+                      className="mt-12 text-indigo-600 dark:text-indigo-400 font-bold hover:underline"
                     >
                       Send another message
                     </button>
                   </motion.div>
                 ) : (
                   <>
-                    <h3 className="text-3xl font-black text-slate-900 mb-4 font-display tracking-tight">Send us a Message</h3>
-                    <p className="text-slate-500 mb-12 font-medium">Fill out the form below and we'll be in touch shortly.</p>
+                    <h3 className="text-3xl font-black text-slate-900 dark:text-white mb-4 font-display tracking-tight">Send us a Message</h3>
+                    <p className="text-slate-500 dark:text-slate-400 mb-12 font-medium">Fill out the form below and we'll be in touch shortly.</p>
                     
                     <form onSubmit={handleSubmit} className="space-y-8">
                       <div className="grid md:grid-cols-2 gap-8">
@@ -156,7 +156,7 @@ const Contact: React.FC = () => {
                             required
                             type="text" 
                             placeholder="John Doe"
-                            className="w-full px-6 py-4 bg-slate-50 border border-slate-100 rounded-2xl focus:outline-none focus:ring-4 focus:ring-indigo-500/10 focus:bg-white transition-all font-medium"
+                            className="w-full px-6 py-4 bg-slate-50 dark:bg-slate-800 border border-slate-100 dark:border-slate-700 rounded-2xl focus:outline-none focus:ring-4 focus:ring-indigo-500/10 focus:bg-white dark:focus:bg-slate-700 transition-all font-medium dark:text-white"
                           />
                         </div>
                         <div className="space-y-3">
@@ -165,14 +165,14 @@ const Contact: React.FC = () => {
                             required
                             type="email" 
                             placeholder="john@example.com"
-                            className="w-full px-6 py-4 bg-slate-50 border border-slate-100 rounded-2xl focus:outline-none focus:ring-4 focus:ring-indigo-500/10 focus:bg-white transition-all font-medium"
+                            className="w-full px-6 py-4 bg-slate-50 dark:bg-slate-800 border border-slate-100 dark:border-slate-700 rounded-2xl focus:outline-none focus:ring-4 focus:ring-indigo-500/10 focus:bg-white dark:focus:bg-slate-700 transition-all font-medium dark:text-white"
                           />
                         </div>
                       </div>
 
                       <div className="space-y-3">
                         <label className="text-xs font-bold text-slate-400 uppercase tracking-widest ml-1">Subject</label>
-                        <select className="w-full px-6 py-4 bg-slate-50 border border-slate-100 rounded-2xl focus:outline-none focus:ring-4 focus:ring-indigo-500/10 focus:bg-white transition-all font-medium appearance-none">
+                        <select className="w-full px-6 py-4 bg-slate-50 dark:bg-slate-800 border border-slate-100 dark:border-slate-700 rounded-2xl focus:outline-none focus:ring-4 focus:ring-indigo-500/10 focus:bg-white dark:focus:bg-slate-700 transition-all font-medium appearance-none dark:text-white">
                           <option>General Inquiry</option>
                           <option>Technical Support</option>
                           <option>Billing Question</option>
@@ -187,14 +187,14 @@ const Contact: React.FC = () => {
                           required
                           rows={6}
                           placeholder="How can we help you?"
-                          className="w-full px-6 py-4 bg-slate-50 border border-slate-100 rounded-2xl focus:outline-none focus:ring-4 focus:ring-indigo-500/10 focus:bg-white transition-all font-medium resize-none"
+                          className="w-full px-6 py-4 bg-slate-50 dark:bg-slate-800 border border-slate-100 dark:border-slate-700 rounded-2xl focus:outline-none focus:ring-4 focus:ring-indigo-500/10 focus:bg-white dark:focus:bg-slate-700 transition-all font-medium resize-none dark:text-white"
                         ></textarea>
                       </div>
 
                       <button 
                         type="submit"
                         disabled={formState === 'submitting'}
-                        className="btn-primary w-full py-5 text-lg shadow-xl shadow-indigo-100 disabled:opacity-50"
+                        className="btn-primary w-full py-5 text-lg shadow-xl shadow-indigo-100 dark:shadow-none disabled:opacity-50"
                       >
                         {formState === 'submitting' ? (
                           <div className="flex items-center gap-3">

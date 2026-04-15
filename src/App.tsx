@@ -3,14 +3,17 @@ import { BrowserRouter as Router, Routes, Route, Navigate } from 'react-router-d
 import Landing from './pages/Landing';
 import Dashboard from './pages/Dashboard';
 import Auth from './pages/Auth';
-import AssessorsTool from './pages/AssessorsTool';
-import AssessorsGuide from './pages/AssessorsGuide';
+import Profile from './pages/Profile';
+import CurriculumExplorer from './pages/CurriculumExplorer';
+import ScreenshotSolver from './pages/ScreenshotSolver';
+import AcademicArchitect from './pages/AcademicArchitect';
 import AboutUs from './pages/AboutUs';
 import Contact from './pages/Contact';
-import AcademicArchitect from './pages/AcademicArchitect';
+import AssessmentGeneratorMOD3 from './pages/AssessmentGeneratorMOD3';
 import Navbar from './components/Navbar';
 import Footer from './components/Footer';
 import { AuthProvider, useAuth } from './contexts/AuthContext';
+import { ThemeProvider } from './contexts/ThemeContext';
 
 import { MessageCircle } from 'lucide-react';
 import { useLocation } from 'react-router-dom';
@@ -35,17 +38,19 @@ const ProtectedRoute: React.FC<{ children: React.ReactNode }> = ({ children }) =
 
 const App: React.FC = () => {
   return (
-    <AuthProvider>
-      <Router>
-        <AppContent />
-      </Router>
-    </AuthProvider>
+    <ThemeProvider>
+      <AuthProvider>
+        <Router>
+          <AppContent />
+        </Router>
+      </AuthProvider>
+    </ThemeProvider>
   );
 };
 
 const AppContent: React.FC = () => {
   const location = useLocation();
-  const isAppPage = ['/dashboard', '/assessors-tool', '/assessors-guide', '/academic-architect'].includes(location.pathname);
+  const isAppPage = ['/dashboard', '/assessors-tool', '/curriculum-explorer', '/screenshot-solver', '/academic-architect'].includes(location.pathname);
 
   return (
     <div className="min-h-screen flex flex-col bg-slate-50">
@@ -54,8 +59,17 @@ const AppContent: React.FC = () => {
         <Routes>
           <Route path="/" element={<Landing />} />
           <Route path="/auth" element={<Auth />} />
-          <Route path="/assessors-tool" element={<AssessorsTool />} />
-          <Route path="/assessors-guide" element={<AssessorsGuide />} />
+          <Route 
+            path="/profile" 
+            element={
+              <ProtectedRoute>
+                <Profile />
+              </ProtectedRoute>
+            } 
+          />
+          <Route path="/assessors-tool" element={<AssessmentGeneratorMOD3 />} />
+          <Route path="/curriculum-explorer" element={<CurriculumExplorer />} />
+          <Route path="/screenshot-solver" element={<ScreenshotSolver />} />
           <Route path="/academic-architect" element={<AcademicArchitect />} />
           <Route path="/about" element={<AboutUs />} />
           <Route path="/contact" element={<Contact />} />

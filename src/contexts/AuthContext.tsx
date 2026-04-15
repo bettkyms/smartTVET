@@ -10,6 +10,10 @@ interface UserProfile {
   photoURL: string;
   role: 'admin' | 'trainer';
   subscription: 'free' | 'pro' | 'institution';
+  trainerNumber?: string;
+  institutionName?: string;
+  institutionLogo?: string;
+  level?: string;
   createdAt: any;
 }
 

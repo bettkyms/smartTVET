@@ -15,7 +15,7 @@ import { Link } from 'react-router-dom';
 
 const AboutUs: React.FC = () => {
   return (
-    <div className="bg-white min-h-screen">
+    <div className="bg-white dark:bg-slate-950 min-h-screen transition-colors duration-300">
       {/* Hero Section */}
       <section className="relative py-32 bg-slate-900 text-white overflow-hidden">
         {/* Background Banner */}
@@ -62,13 +62,13 @@ const AboutUs: React.FC = () => {
               initial={{ opacity: 0, x: -30 }}
               whileInView={{ opacity: 1, x: 0 }}
               viewport={{ once: true }}
-              className="bg-slate-50 p-12 rounded-[3rem] border border-slate-100 shadow-sm hover:shadow-xl transition-all group"
+              className="bg-slate-50 dark:bg-slate-900 p-12 rounded-[3rem] border border-slate-100 dark:border-slate-800 shadow-sm hover:shadow-xl transition-all group"
             >
-              <div className="w-16 h-16 bg-indigo-600 rounded-[1.5rem] flex items-center justify-center mb-8 shadow-lg shadow-indigo-100 group-hover:scale-110 transition-transform">
+              <div className="w-16 h-16 bg-indigo-600 rounded-[1.5rem] flex items-center justify-center mb-8 shadow-lg shadow-indigo-100 dark:shadow-none group-hover:scale-110 transition-transform">
                 <Target className="w-8 h-8 text-white" />
               </div>
-              <h2 className="text-4xl font-black text-slate-900 mb-6 font-display tracking-tight">Our Mission</h2>
-              <p className="text-slate-600 leading-relaxed text-lg font-medium">
+              <h2 className="text-4xl font-black text-slate-900 dark:text-white mb-6 font-display tracking-tight">Our Mission</h2>
+              <p className="text-slate-600 dark:text-slate-400 leading-relaxed text-lg font-medium">
                 To provide TVET trainers with cutting-edge AI tools that simplify the complex process of curriculum planning, assessment tool generation, and session delivery, allowing them to focus on what matters most: teaching.
               </p>
             </motion.div>
@@ -92,11 +92,11 @@ const AboutUs: React.FC = () => {
       </section>
 
       {/* Values - Bento Style */}
-      <section className="py-32 bg-slate-50 relative overflow-hidden">
+      <section className="py-32 bg-slate-50 dark:bg-slate-900/50 relative overflow-hidden">
         <div className="container mx-auto px-6">
           <div className="text-center mb-20">
-            <h2 className="text-4xl lg:text-6xl font-black text-slate-900 mb-6 font-display tracking-tight">Our Core Values</h2>
-            <p className="text-slate-500 max-w-2xl mx-auto text-lg font-medium">The principles that guide everything we build and every trainer we support.</p>
+            <h2 className="text-4xl lg:text-6xl font-black text-slate-900 dark:text-white mb-6 font-display tracking-tight">Our Core Values</h2>
+            <p className="text-slate-500 dark:text-slate-400 max-w-2xl mx-auto text-lg font-medium">The principles that guide everything we build and every trainer we support.</p>
           </div>
           
           <div className="grid md:grid-cols-3 gap-8">
@@ -105,19 +105,19 @@ const AboutUs: React.FC = () => {
                 title: "Innovation",
                 desc: "Leveraging the latest AI technology to solve real-world educational challenges and streamline workflows.",
                 icon: Sparkles,
-                color: "bg-amber-100 text-amber-600"
+                color: "bg-amber-100 dark:bg-amber-900/30 text-amber-600 dark:text-amber-400"
               },
               {
                 title: "Integrity",
                 desc: "Ensuring all materials generated meet the highest professional and ethical standards of TVET education.",
                 icon: ShieldCheck,
-                color: "bg-blue-100 text-blue-600"
+                color: "bg-blue-100 dark:bg-blue-900/30 text-blue-600 dark:text-blue-400"
               },
               {
                 title: "Community",
                 desc: "Building a platform that empowers trainers to support each other, share knowledge, and grow together.",
                 icon: Users,
-                color: "bg-purple-100 text-purple-600"
+                color: "bg-purple-100 dark:bg-purple-900/30 text-purple-600 dark:text-purple-400"
               }
             ].map((value, idx) => (
               <motion.div 
@@ -126,13 +126,13 @@ const AboutUs: React.FC = () => {
                 whileInView={{ opacity: 1, y: 0 }}
                 viewport={{ once: true }}
                 transition={{ delay: idx * 0.1 }}
-                className="bg-white p-10 rounded-[2.5rem] border border-slate-200 shadow-sm hover:shadow-2xl hover:-translate-y-2 transition-all"
+                className="bg-white dark:bg-slate-900 p-10 rounded-[2.5rem] border border-slate-200 dark:border-slate-800 shadow-sm hover:shadow-2xl hover:-translate-y-2 transition-all"
               >
                 <div className={`${value.color} w-14 h-14 rounded-2xl flex items-center justify-center mb-8 shadow-sm`}>
                   <value.icon className="w-7 h-7" />
                 </div>
-                <h3 className="text-2xl font-bold text-slate-900 mb-4 font-display">{value.title}</h3>
-                <p className="text-slate-600 leading-relaxed font-medium">{value.desc}</p>
+                <h3 className="text-2xl font-bold text-slate-900 dark:text-white mb-4 font-display">{value.title}</h3>
+                <p className="text-slate-600 dark:text-slate-400 leading-relaxed font-medium">{value.desc}</p>
               </motion.div>
             ))}
           </div>
@@ -146,10 +146,10 @@ const AboutUs: React.FC = () => {
             initial={{ opacity: 0, scale: 0.95 }}
             whileInView={{ opacity: 1, scale: 1 }}
             viewport={{ once: true }}
-            className="max-w-4xl mx-auto bg-white border border-slate-100 p-16 lg:p-24 rounded-[3.5rem] shadow-2xl"
+            className="max-w-4xl mx-auto bg-white dark:bg-slate-900 border border-slate-100 dark:border-slate-800 p-16 lg:p-24 rounded-[3.5rem] shadow-2xl"
           >
-            <h2 className="text-4xl lg:text-6xl font-black mb-8 text-slate-900 leading-tight font-display tracking-tight">Get in Touch</h2>
-            <p className="text-slate-500 mb-12 max-w-2xl mx-auto text-xl leading-relaxed font-medium">
+            <h2 className="text-4xl lg:text-6xl font-black mb-8 text-slate-900 dark:text-white leading-tight font-display tracking-tight">Get in Touch</h2>
+            <p className="text-slate-500 dark:text-slate-400 mb-12 max-w-2xl mx-auto text-xl leading-relaxed font-medium">
               Have questions or need support? We're here to help you succeed in your TVET career.
             </p>
             <div className="flex flex-col sm:flex-row items-center justify-center gap-6">
