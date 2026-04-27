@@ -21,6 +21,7 @@ import {
 } from 'lucide-react';
 import { motion, AnimatePresence } from 'framer-motion';
 import { cn } from '../utils/cn';
+import { getApiKey } from '../utils/apiKey';
 import BrandingSection from '../components/BrandingSection';
 import { useAuth } from '../contexts/AuthContext';
 import mammoth from 'mammoth';
@@ -56,8 +57,8 @@ const AssessmentGeneratorMOD3: React.FC = () => {
   const fileInputRef = useRef<HTMLInputElement>(null);
 
   useEffect(() => {
-    const apiKey = process.env.API_KEY || process.env.GEMINI_API_KEY || import.meta.env.VITE_API_KEY;
-    const keyIsAvailable = !!apiKey && apiKey.trim() !== '' && apiKey !== 'undefined';
+    const apiKey = getApiKey();
+    const keyIsAvailable = !!apiKey;
     setIsApiConfigured(keyIsAvailable);
     
     if (profile?.institutionName) setInstitutionName(profile.institutionName);
@@ -76,12 +77,12 @@ const AssessmentGeneratorMOD3: React.FC = () => {
 
     updateSlot(slotId, { isLoading: true, error: '', content: null });
 
-    const apiKey = process.env.GEMINI_API_KEY || process.env.API_KEY || import.meta.env.VITE_GEMINI_API_KEY || import.meta.env.VITE_API_KEY;
-    if (!apiKey || apiKey === 'undefined' || apiKey === 'null' || apiKey.trim() === '') {
-      updateSlot(slotId, { error: "Gemini API Key not found. Please check your environment variables.", isLoading: false });
+    const apiKey = getApiKey();
+    if (!apiKey) {
+      updateSlot(slotId, { error: "Gemini API Key not found. If you are on Vercel, please provide VITE_GEMINI_API_KEY in project settings.", isLoading: false });
       return;
     }
-    const ai = new GoogleGenAI({ apiKey: apiKey as string });
+    const ai = new GoogleGenAI({ apiKey });
     const slot = slots.find(s => s.id === slotId);
     const isPractical = knqfLevel < 5;
 
@@ -187,7 +188,8 @@ const AssessmentGeneratorMOD3: React.FC = () => {
       logoImageRun = new ImageRun({
         data: buffer,
         transformation: { width: 80, height: 80 },
-      });
+        type: 'png'
+      } as any);
     } catch (err) {
       console.error("Failed to load logo for docx:", err);
     }
@@ -514,10 +516,10 @@ const AssessmentGeneratorMOD3: React.FC = () => {
                   <div className="absolute top-0 left-0 w-full h-2 bg-gradient-to-r from-indigo-600 via-royal to-indigo-600" />
                   
                   <div className="text-center mb-12 border-b-2 border-slate-100 dark:border-slate-800 pb-10">
-                    {schoolLogo && (
-                      <img src={schoolLogo} alt="Logo" className="max-h-16 mx-auto mb-6 grayscale hover:grayscale-0 transition-all duration-500" referrerPolicy="no-referrer" />
+                    {customLogo && (
+                      <img src={customLogo} alt="Logo" className="max-h-16 mx-auto mb-6 grayscale hover:grayscale-0 transition-all duration-500" referrerPolicy="no-referrer" />
                     )}
-                    <h1 className="text-2xl font-black text-slate-900 dark:text-white uppercase tracking-tight mb-2">{schoolName || "SMART TVET SYSTEMS"}</h1>
+                    <h1 className="text-2xl font-black text-slate-900 dark:text-white uppercase tracking-tight mb-2">{institutionName || "SMART TVET SYSTEMS"}</h1>
                     <h2 className="text-lg font-bold text-indigo-600 dark:text-indigo-400 uppercase tracking-widest mb-4">{slots[activeSlot-1].content.header.title}</h2>
                     <div className="flex justify-center gap-8 text-[10px] font-black text-slate-400 uppercase tracking-[0.2em]">
                       <span>Unit: {slots[activeSlot-1].content.header.unitCode}</span>

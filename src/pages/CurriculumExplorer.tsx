@@ -19,6 +19,7 @@ import {
 } from 'lucide-react';
 import { motion, AnimatePresence } from 'framer-motion';
 import { cn } from '../utils/cn';
+import { getApiKey } from '../utils/apiKey';
 import BrandingSection from '../components/BrandingSection';
 import { useAuth } from '../contexts/AuthContext';
 import mammoth from "mammoth";
@@ -66,8 +67,8 @@ const CurriculumExplorer: React.FC = () => {
   const [activeMode, setActiveMode] = useState<'curriculum' | 'sessionPlan'>('curriculum');
 
   useEffect(() => {
-    const apiKey = process.env.API_KEY || process.env.GEMINI_API_KEY || import.meta.env.VITE_API_KEY;
-    const keyIsAvailable = !!apiKey && apiKey.trim() !== '' && apiKey !== 'undefined';
+    const apiKey = getApiKey();
+    const keyIsAvailable = !!apiKey;
     setIsApiConfigured(keyIsAvailable);
     if (profile?.institutionLogo) setCustomLogo(profile.institutionLogo);
     if (profile?.institutionName) setInstitutionName(profile.institutionName);
@@ -104,13 +105,13 @@ const CurriculumExplorer: React.FC = () => {
     setIsLoading(true);
     setError('');
 
-    const apiKey = process.env.GEMINI_API_KEY || process.env.API_KEY || import.meta.env.VITE_GEMINI_API_KEY || import.meta.env.VITE_API_KEY;
-    if (!apiKey || apiKey === 'undefined' || apiKey === 'null' || apiKey.trim() === '') {
-      setError("Gemini API Key not found. Please check your environment variables.");
+    const apiKey = getApiKey();
+    if (!apiKey) {
+      setError("Gemini API Key not found. If you are on Vercel, please provide VITE_GEMINI_API_KEY in project settings.");
       setIsLoading(false);
       return;
     }
-    const ai = new GoogleGenAI({ apiKey: apiKey as string });
+    const ai = new GoogleGenAI({ apiKey });
 
     try {
       const response = await ai.models.generateContent({
@@ -161,13 +162,13 @@ const CurriculumExplorer: React.FC = () => {
     setGeneratedQuiz('');
     setChatMessages([]);
 
-    const apiKey = process.env.GEMINI_API_KEY || process.env.API_KEY || import.meta.env.VITE_GEMINI_API_KEY || import.meta.env.VITE_API_KEY;
-    if (!apiKey || apiKey === 'undefined' || apiKey === 'null' || apiKey.trim() === '') {
+    const apiKey = getApiKey();
+    if (!apiKey) {
       setError("Gemini API Key not configured.");
       setIsGeneratingNotes(false);
       return;
     }
-    const ai = new GoogleGenAI({ apiKey: apiKey as string });
+    const ai = new GoogleGenAI({ apiKey });
 
     try {
       const response = await ai.models.generateContent({
@@ -195,13 +196,13 @@ const CurriculumExplorer: React.FC = () => {
     if (generatedQuiz) return;
     
     setIsGeneratingQuiz(true);
-    const apiKey = process.env.GEMINI_API_KEY || process.env.API_KEY || import.meta.env.VITE_GEMINI_API_KEY || import.meta.env.VITE_API_KEY;
-    if (!apiKey || apiKey === 'undefined' || apiKey === 'null' || apiKey.trim() === '') {
+    const apiKey = getApiKey();
+    if (!apiKey) {
       setError("Gemini API Key not configured.");
       setIsGeneratingQuiz(false);
       return;
     }
-    const ai = new GoogleGenAI({ apiKey: apiKey as string });
+    const ai = new GoogleGenAI({ apiKey });
 
     try {
       const response = await ai.models.generateContent({
@@ -231,13 +232,13 @@ const CurriculumExplorer: React.FC = () => {
     setChatInput('');
     setIsChatLoading(true);
 
-    const apiKey = process.env.GEMINI_API_KEY || process.env.API_KEY || import.meta.env.VITE_GEMINI_API_KEY || import.meta.env.VITE_API_KEY;
-    if (!apiKey || apiKey === 'undefined' || apiKey === 'null' || apiKey.trim() === '') {
+    const apiKey = getApiKey();
+    if (!apiKey) {
       setError("Gemini API Key not configured.");
       setIsChatLoading(false);
       return;
     }
-    const ai = new GoogleGenAI({ apiKey: apiKey as string });
+    const ai = new GoogleGenAI({ apiKey });
 
     try {
       const chat = ai.chats.create({
@@ -272,13 +273,13 @@ const CurriculumExplorer: React.FC = () => {
     setIsLoading(true);
     setError('');
 
-    const apiKey = process.env.GEMINI_API_KEY || process.env.API_KEY || import.meta.env.VITE_GEMINI_API_KEY || import.meta.env.VITE_API_KEY;
-    if (!apiKey || apiKey === 'undefined' || apiKey === 'null' || apiKey.trim() === '') {
+    const apiKey = getApiKey();
+    if (!apiKey) {
       setError("Gemini API Key not configured.");
       setIsLoading(false);
       return;
     }
-    const ai = new GoogleGenAI({ apiKey: apiKey as string });
+    const ai = new GoogleGenAI({ apiKey });
 
     try {
       const response = await ai.models.generateContent({

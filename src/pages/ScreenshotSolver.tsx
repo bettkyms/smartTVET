@@ -17,6 +17,7 @@ import { useAuth } from '../contexts/AuthContext';
 import ReactMarkdown from 'react-markdown';
 import mermaid from 'mermaid';
 import { cn } from '../utils/cn';
+import { getApiKey } from '../utils/apiKey';
 
 // Initialize mermaid
 mermaid.initialize({
@@ -54,8 +55,8 @@ const ScreenshotSolver: React.FC = () => {
   const [customLogo, setCustomLogo] = useState<string | null>(null);
 
   useEffect(() => {
-    const apiKey = process.env.API_KEY || process.env.GEMINI_API_KEY || import.meta.env.VITE_API_KEY;
-    const keyIsAvailable = !!apiKey && apiKey.trim() !== '' && apiKey !== 'undefined';
+    const apiKey = getApiKey();
+    const keyIsAvailable = !!apiKey;
     setIsApiConfigured(keyIsAvailable);
     if (profile?.institutionLogo) setCustomLogo(profile.institutionLogo);
     if (profile?.institutionName) setInstitutionName(profile.institutionName);
@@ -89,13 +90,13 @@ const ScreenshotSolver: React.FC = () => {
     setAnalysis('');
     setError('');
 
-    const apiKey = process.env.GEMINI_API_KEY || process.env.API_KEY || import.meta.env.VITE_GEMINI_API_KEY || import.meta.env.VITE_API_KEY;
-    if (!apiKey || apiKey === 'undefined' || apiKey === 'null' || apiKey.trim() === '') {
-      setError("Gemini API Key not found. Please check your environment variables.");
+    const apiKey = getApiKey();
+    if (!apiKey) {
+      setError("Gemini API Key not found. If you are on Vercel, please provide VITE_GEMINI_API_KEY in project settings.");
       setIsAnalyzing(false);
       return;
     }
-    const ai = new GoogleGenAI({ apiKey: apiKey as string });
+    const ai = new GoogleGenAI({ apiKey });
 
     try {
       const base64Data = screenshot.split(',')[1];

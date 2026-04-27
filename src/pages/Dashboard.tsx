@@ -24,6 +24,7 @@ import {
 } from 'lucide-react';
 import { motion, AnimatePresence } from 'framer-motion';
 import { cn } from '../utils/cn';
+import { getApiKey } from '../utils/apiKey';
 import BrandingSection from '../components/BrandingSection';
 import { useAuth } from '../contexts/AuthContext';
 import { db, handleFirestoreError, OperationType } from '../firebase';
@@ -47,8 +48,8 @@ const Dashboard: React.FC = () => {
   const [institutionName, setInstitutionName] = useState(profile?.institutionName || '');
 
   useEffect(() => {
-    const apiKey = process.env.GEMINI_API_KEY || process.env.API_KEY || import.meta.env.VITE_GEMINI_API_KEY || import.meta.env.VITE_API_KEY;
-    const keyIsAvailable = !!apiKey && apiKey.trim() !== '' && apiKey !== 'undefined' && apiKey !== 'null';
+    const apiKey = getApiKey();
+    const keyIsAvailable = !!apiKey;
     setIsApiConfigured(keyIsAvailable);
     if (!keyIsAvailable) {
       console.warn("Gemini API Key is not configured. AI features will be disabled.");
@@ -177,8 +178,8 @@ const Dashboard: React.FC = () => {
 
   // --- API KEY CHECK ---
   useEffect(() => {
-    const apiKey = process.env.GEMINI_API_KEY || process.env.API_KEY || import.meta.env.VITE_GEMINI_API_KEY || import.meta.env.VITE_API_KEY;
-    const keyIsAvailable = !!apiKey && apiKey.trim() !== '' && apiKey !== 'undefined' && apiKey !== 'null';
+    const apiKey = getApiKey();
+    const keyIsAvailable = !!apiKey;
     setIsApiConfigured(keyIsAvailable);
     if (!keyIsAvailable) {
       console.warn("Gemini API Key is not configured. AI features will be disabled.");
@@ -261,8 +262,9 @@ const Dashboard: React.FC = () => {
     }
 
     if (extension === 'pdf' || extension === 'docx') {
-      if (!isApiConfigured) {
-        setError("API Key required to process files.");
+      const apiKey = getApiKey();
+      if (!apiKey) {
+        setError("API Key required to process files. Please set VITE_GEMINI_API_KEY in your environment.");
         return;
       }
       
@@ -270,8 +272,7 @@ const Dashboard: React.FC = () => {
       setGenerationStep('Reading document content...');
       
       try {
-    const apiKey = process.env.API_KEY || process.env.GEMINI_API_KEY || import.meta.env.VITE_API_KEY;
-    const ai = new GoogleGenAI({ apiKey: apiKey as string });
+        const ai = new GoogleGenAI({ apiKey: apiKey as string });
         let modelParts: any[] = [];
 
         const extractionInstruction = `You are a TVET CDACC document extractor. 
@@ -349,8 +350,9 @@ const Dashboard: React.FC = () => {
 
   const handleGenerateLP = async (e: React.FormEvent) => {
     e.preventDefault();
-    if (!isApiConfigured) {
-      setError("Configuration Error: The API_KEY is not available in the environment.");
+    const apiKey = getApiKey();
+    if (!apiKey) {
+      setError("Configuration Error: The Gemini API Key is not available. If you are using Vercel, please provide VITE_GEMINI_API_KEY in the Environment Variables.");
       return;
     }
 
@@ -365,8 +367,7 @@ const Dashboard: React.FC = () => {
     const currentYear = now.getFullYear();
     const totalSessions = parseInt(numWeeks) * parseInt(numLessons);
     const totalHours = totalSessions * 2; 
-    const apiKey = process.env.API_KEY || process.env.GEMINI_API_KEY || import.meta.env.VITE_API_KEY;
-    const ai = new GoogleGenAI({ apiKey: apiKey as string });
+    const ai = new GoogleGenAI({ apiKey });
 
     try {
       setGenerationStep('Extracting Metadata & Benchmarks...');
@@ -445,7 +446,8 @@ const Dashboard: React.FC = () => {
   };
 
   const handleGenerateSPs = async () => {
-    if (!isApiConfigured || !learningPlan) return;
+    const apiKey = getApiKey();
+    if (!apiKey || !learningPlan) return;
 
     setIsGeneratingSP(true);
     setError('');
@@ -453,8 +455,7 @@ const Dashboard: React.FC = () => {
 
     const totalSessions = parseInt(numWeeks) * parseInt(numLessons);
     const currentYear = new Date().getFullYear();
-    const apiKey = process.env.API_KEY || process.env.GEMINI_API_KEY || import.meta.env.VITE_API_KEY;
-    const ai = new GoogleGenAI({ apiKey: apiKey as string });
+    const ai = new GoogleGenAI({ apiKey });
 
     try {
       const batchSize = 2; 
