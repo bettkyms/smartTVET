@@ -20,6 +20,7 @@ import { cn } from '../utils/cn';
 import { getApiKey } from '../utils/apiKey';
 import BrandingSection from '../components/BrandingSection';
 import { useAuth } from '../contexts/AuthContext';
+import { callGeminiWithRetry } from '../utils/ai';
 
 const RecordOfWork: React.FC = () => {
   const { user, profile } = useAuth();
@@ -65,8 +66,8 @@ const RecordOfWork: React.FC = () => {
     const ai = new GoogleGenAI({ apiKey });
 
     try {
-      const response = await ai.models.generateContent({
-        model: 'gemini-3-flash-preview',
+      const response = await callGeminiWithRetry({
+        model: 'gemini-3.1-pro-preview',
         contents: `Generate a CDACC-compliant Record of Work table for ${numSessions} sessions. 
         Unit: ${unitTitle} (${unitCode}). 
         Work Description/Topic: ${workDescription}.
@@ -78,17 +79,15 @@ const RecordOfWork: React.FC = () => {
         4. Trainees Present (Leave as a placeholder e.g. "___/___")
         5. Remarks/Self-Reflection
         6. Supervisor Signature (Placeholder)`,
-        config: {
-          systemInstruction: `You are a TVET CDACC Quality Assurance expert. Generate a professional Record of Work matrix in HTML.
+        systemInstruction: `You are a TVET CDACC Quality Assurance expert. Generate a professional Record of Work matrix in HTML.
           DO NOT use markdown blocks. Return ONLY HTML.
           Use a professional table with border="1" and width="100%".
           Create EXACTLY ${numSessions} rows.
           Flesh out the "Work Covered" column based on the provided topic, making each session progressive and logically sequenced.
           The Remarks should vary for each row (e.g. "Learning outcome achieved", "Trainees showed great interest", "Practical session successful", etc.)`
-        }
       });
 
-      const html = response.text || '';
+      const html = response.text() || '';
       const logoUrl = customLogo || profile?.institutionLogo || "https://lh3.googleusercontent.com/d/1SjQv4bgCcCO11gebydnHsnK8f1fnE0zl";
       const inst = institutionName || "SMART TVET SYSTEMS";
       const now = new Date();

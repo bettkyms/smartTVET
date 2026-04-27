@@ -1,5 +1,4 @@
 import React, { useState, useEffect } from 'react';
-import { GoogleGenAI, Type } from "@google/genai";
 import { 
   FileText, 
   Download, 
@@ -22,7 +21,9 @@ import { cn } from '../utils/cn';
 import { getApiKey } from '../utils/apiKey';
 import BrandingSection from '../components/BrandingSection';
 import { useAuth } from '../contexts/AuthContext';
+import { callGeminiWithRetry } from '../utils/ai';
 import mammoth from "mammoth";
+import { GoogleGenAI } from "@google/genai";
 
 interface Subtopic {
   title: string;
@@ -114,8 +115,8 @@ const CurriculumExplorer: React.FC = () => {
     const ai = new GoogleGenAI({ apiKey });
 
     try {
-      const response = await ai.models.generateContent({
-        model: 'gemini-3-flash-preview',
+      const response = await callGeminiWithRetry({
+        model: 'gemini-flash-latest',
         contents: `Analyze the following curriculum and extract a structured dashboard with modules, topics, and subtopics.
         
         CURRICULUM CONTENT:
@@ -138,12 +139,12 @@ const CurriculumExplorer: React.FC = () => {
             }
           ]
         }`,
-        config: {
+        generationConfig: {
           responseMimeType: "application/json"
         }
       });
 
-      const data = JSON.parse(response.text || '{}');
+      const data = JSON.parse(response.text() || '{}');
       setCurriculumData(data);
       setIsDashboardGenerated(true);
     } catch (err: any) {
@@ -171,17 +172,15 @@ const CurriculumExplorer: React.FC = () => {
     const ai = new GoogleGenAI({ apiKey });
 
     try {
-      const response = await ai.models.generateContent({
-        model: 'gemini-3-flash-preview',
+      const response = await callGeminiWithRetry({
+        model: 'gemini-3.1-pro-preview',
         contents: type === 'subtopic' 
           ? `Generate comprehensive technical notes for the subtopic "${title}" which is part of the topic "${parentTitle}" in the course "${curriculumData?.courseTitle}". Include definitions, key concepts, examples, and a summary.`
           : `Generate comprehensive technical notes for the topic "${title}" in the course "${curriculumData?.courseTitle}". Provide a high-level overview and then detailed notes for its core components.`,
-        config: {
-          systemInstruction: "You are an expert TVET educator. Generate professional, clear, and detailed technical notes in HTML format. Use proper headings, bullet points, and tables where necessary."
-        }
+        systemInstruction: "You are an expert TVET educator. Generate professional, clear, and detailed technical notes in HTML format. Use proper headings, bullet points, and tables where necessary."
       });
 
-      setGeneratedNotes(response.text || '');
+      setGeneratedNotes(response.text() || '');
     } catch (err: any) {
       console.error(err);
       setError("Error generating notes.");
@@ -205,17 +204,15 @@ const CurriculumExplorer: React.FC = () => {
     const ai = new GoogleGenAI({ apiKey });
 
     try {
-      const response = await ai.models.generateContent({
-        model: 'gemini-3-flash-preview',
+      const response = await callGeminiWithRetry({
+        model: 'gemini-flash-latest',
         contents: `Generate a comprehensive quiz for the ${selectedItem.type} "${selectedItem.title}" in the course "${curriculumData?.courseTitle}". 
       Include 5 Multiple Choice Questions and 5 True/False questions. 
       Provide the answers at the end.`,
-        config: {
-          systemInstruction: "You are an expert TVET assessor. Generate a professional quiz in HTML format. Use clear formatting, radio-button style indicators (non-functional), and a hidden or separate answer key section."
-        }
+        systemInstruction: "You are an expert TVET assessor. Generate a professional quiz in HTML format. Use clear formatting, radio-button style indicators (non-functional), and a hidden or separate answer key section."
       });
 
-      setGeneratedQuiz(response.text || '');
+      setGeneratedQuiz(response.text() || '');
     } catch (err: any) {
       console.error(err);
       setError("Error generating quiz.");
@@ -241,20 +238,13 @@ const CurriculumExplorer: React.FC = () => {
     const ai = new GoogleGenAI({ apiKey });
 
     try {
-      const chat = ai.chats.create({
-        model: 'gemini-3-flash-preview',
-        config: {
-          systemInstruction: `You are an expert TVET Tutor. You are helping a student with the ${selectedItem.type} "${selectedItem.title}" in the course "${curriculumData?.courseTitle}". 
-          Provide clear, helpful, and technically accurate answers. Use examples where possible.`
-        },
-        history: chatMessages.map(m => ({
-          role: m.role === 'user' ? 'user' : 'model',
-          parts: [{ text: m.text }],
-        })),
+      const response = await callGeminiWithRetry({
+        model: 'gemini-3.1-pro-preview',
+        contents: `ASK: ${chatInput}\nCONTEXT: Helping a student with the ${selectedItem.type} "${selectedItem.title}" in the course "${curriculumData?.courseTitle}". Provide clear, helpful, and technically accurate answers. Use examples where possible.`,
+        systemInstruction: "You are an expert TVET Tutor. Provide technical assistance based on the curriculum topic."
       });
 
-      const response = await chat.sendMessage({ message: chatInput });
-      const modelMsg = { role: 'model' as const, text: response.text || '' };
+      const modelMsg = { role: 'model' as const, text: response.text() || '' };
       setChatMessages(prev => [...prev, modelMsg]);
     } catch (err: any) {
       console.error(err);
@@ -282,17 +272,15 @@ const CurriculumExplorer: React.FC = () => {
     const ai = new GoogleGenAI({ apiKey });
 
     try {
-      const response = await ai.models.generateContent({
-        model: 'gemini-3-flash-preview',
+      const response = await callGeminiWithRetry({
+        model: 'gemini-3.1-pro-preview',
         contents: target === 'notes'
           ? `Generate detailed training notes based on this session plan:\n\n${sessionPlanInput}`
           : `Generate a structured PowerPoint presentation outline (Slide by Slide) based on this session plan. For each slide, provide a Title and Bullet Points for content:\n\n${sessionPlanInput}`,
-        config: {
-          systemInstruction: `You are a professional corporate trainer. Generate ${target === 'notes' ? 'comprehensive training notes' : 'a structured PPT outline'} in HTML format.`
-        }
+        systemInstruction: `You are a professional corporate trainer. Generate ${target === 'notes' ? 'comprehensive training notes' : 'a structured PPT outline'} in HTML format.`
       });
 
-      setGeneratedNotes(response.text || '');
+      setGeneratedNotes(response.text() || '');
       setSelectedItem({ type: 'topic', title: target === 'notes' ? 'Session Notes' : 'PPT Outline' });
     } catch (err: any) {
       console.error(err);

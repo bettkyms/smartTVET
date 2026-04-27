@@ -29,6 +29,7 @@ import BrandingSection from '../components/BrandingSection';
 import { useAuth } from '../contexts/AuthContext';
 import { db, handleFirestoreError, OperationType } from '../firebase';
 import { collection, addDoc, query, where, onSnapshot, serverTimestamp, deleteDoc, doc, updateDoc } from 'firebase/firestore';
+import { callGeminiWithRetry } from '../utils/ai';
 
 const Dashboard: React.FC = () => {
   const { user, profile } = useAuth();
@@ -308,11 +309,10 @@ const Dashboard: React.FC = () => {
           ];
         }
 
-        const response = await ai.models.generateContent({
-          model: 'gemini-3-flash-preview',
+        const response = await callGeminiWithRetry({
+          model: 'gemini-3.1-pro-preview',
           contents: [{ parts: modelParts }],
-          config: {
-            systemInstruction: `You are a TVET curriculum expert. Extract the Unit of Competency title and key curriculum points from the provided text.
+          systemInstruction: `You are a TVET curriculum expert. Extract the Unit of Competency title and key curriculum points from the provided text.
         Return ONLY the extracted information formatted as HTML.
         
         Format:
@@ -323,10 +323,9 @@ const Dashboard: React.FC = () => {
           <li>[Point 1]</li>
           ...
         </ul>`
-          }
         });
 
-        const extractedHtml = cleanResponse(response.text || '');
+        const extractedHtml = cleanResponse(response.text() || '');
         if (extractedHtml.includes('ERROR:')) {
           setError(extractedHtml);
         } else {
@@ -371,11 +370,10 @@ const Dashboard: React.FC = () => {
 
     try {
       setGenerationStep('Extracting Metadata & Benchmarks...');
-      const metaResponse = await ai.models.generateContent({
-        model: 'gemini-3-flash-preview',
+      const metaResponse = await callGeminiWithRetry({
+        model: 'gemini-3.1-pro-preview',
         contents: `Curriculum: ${curriculum}. Create the metadata header and 9-column matrix start.`,
-        config: {
-          systemInstruction: `You are a TVET CDACC expert. Generate a Metadata table and a Learning Plan table header in HTML.
+        systemInstruction: `You are a TVET CDACC expert. Generate a Metadata table and a Learning Plan table header in HTML.
       DO NOT use markdown blocks. Return ONLY HTML.
       
       Structure:
@@ -393,10 +391,9 @@ const Dashboard: React.FC = () => {
          WEEK, SESSION NO, SESSION TITLE, LEARNING OUTCOMES, TRAINER ACTIVITIES, TRAINEE ACTIVITIES, Resources & Refs, Learning Checks/ Assessments, Reflections & Date.
       
       IMPORTANT: DO NOT CLOSE the <table> tag yet.`
-        }
       });
 
-      let finalHtml = cleanResponse(metaResponse.text || '') + '<tbody>';
+      let finalHtml = cleanResponse(metaResponse.text() || '') + '<tbody>';
 
       const rowBatchSize = 6;
       const numRowBatches = Math.ceil(totalSessions / rowBatchSize);
@@ -408,11 +405,10 @@ const Dashboard: React.FC = () => {
         
         setGenerationStep(`Populating Sessions ${start} to ${end} (Week ${currentWeek})...`);
 
-        const rowResponse = await ai.models.generateContent({
-          model: 'gemini-3-flash-preview',
+        const rowResponse = await callGeminiWithRetry({
+          model: 'gemini-3.1-pro-preview',
           contents: `Generate matrix rows for sessions ${start} to ${end}.`,
-          config: {
-            systemInstruction: `You are a TVET CDACC expert. Generate EXACTLY ${end - start + 1} <tr> rows for the matrix.
+          systemInstruction: `You are a TVET CDACC expert. Generate EXACTLY ${end - start + 1} <tr> rows for the matrix.
         DO NOT include <table> or <thead>. Return ONLY <tr> elements.
         
         CRITICAL: EVERY ROW MUST HAVE EXACTLY 9 <td> CELLS:
@@ -427,10 +423,9 @@ const Dashboard: React.FC = () => {
         9. Reflections & Date: "Completed on ___/___/${currentYear}"
  
         Every session is 2 HOURS. CURRICULUM: ${curriculum}`
-          }
         });
 
-        finalHtml += cleanResponse(rowResponse.text || '');
+        finalHtml += cleanResponse(rowResponse.text() || '');
       }
 
       finalHtml += '</tbody></table>';
@@ -467,11 +462,10 @@ const Dashboard: React.FC = () => {
         const end = Math.min((i + 1) * batchSize, totalSessions);
         setGenerationStep(`Expanding Plans ${start}-${end}...`);
 
-        const spResponse = await ai.models.generateContent({
-          model: 'gemini-3-flash-preview',
+        const spResponse = await callGeminiWithRetry({
+          model: 'gemini-3.1-pro-preview',
           contents: `Generate full Portrait Session Plans for Sessions ${start} to ${end} based on the Learning Plan matrix provided. Content source: ${learningPlan.substring(0, 15000)}. Each session plan must be independent and use solid borders.`,
-          config: {
-            systemInstruction: `You are a TVET CDACC expert. Generate highly detailed, INDEPENDENT Session Plans in HTML for A4 PORTRAIT.
+          systemInstruction: `You are a TVET CDACC expert. Generate highly detailed, INDEPENDENT Session Plans in HTML for A4 PORTRAIT.
         DO NOT use markdown blocks. Return ONLY HTML.
         
         STRICT RULES FOR EVERY SESSION:
@@ -497,10 +491,9 @@ const Dashboard: React.FC = () => {
            * 10 Min | Closure | [Text] | [Text]
         
         Insert <div class="page-break"></div> strictly BETWEEN sessions.`
-          }
         });
 
-        fullSpContent += cleanResponse(spResponse.text || '');
+        fullSpContent += cleanResponse(spResponse.text() || '');
       }
       setSessionPlans(wrapWithHeader(fullSpContent, 'SESSION PLAN'));
     } catch (err: any) {

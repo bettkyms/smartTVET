@@ -1,5 +1,4 @@
 import React, { useState, useEffect } from 'react';
-import { GoogleGenAI } from "@google/genai";
 import { 
   FileText, 
   Download, 
@@ -20,6 +19,8 @@ import { cn } from '../utils/cn';
 import { getApiKey } from '../utils/apiKey';
 import BrandingSection from '../components/BrandingSection';
 import { useAuth } from '../contexts/AuthContext';
+import { callGeminiWithRetry } from '../utils/ai';
+import { GoogleGenAI } from "@google/genai";
 
 const AssessorsTool: React.FC = () => {
   const { user, profile } = useAuth();
@@ -59,11 +60,10 @@ const AssessorsTool: React.FC = () => {
     const ai = new GoogleGenAI({ apiKey });
 
     try {
-      const response = await ai.models.generateContent({
-        model: 'gemini-3-flash-preview',
+      const response = await callGeminiWithRetry({
+        model: 'gemini-3.1-pro-preview',
         contents: `Generate a ${toolType} assessment tool for the unit: ${unitTitle} (${unitCode}). Ensure it follows CDACC standards.`,
-        config: {
-          systemInstruction: `You are a TVET CDACC Assessment Expert. Generate a professional ${toolType} assessment tool in HTML format.
+        systemInstruction: `You are a TVET CDACC Assessment Expert. Generate a professional ${toolType} assessment tool in HTML format.
       DO NOT use markdown blocks. Return ONLY HTML.
       Use professional tables with solid borders (border="1").
       
@@ -78,10 +78,9 @@ const AssessorsTool: React.FC = () => {
       If toolType is 'moderation': Generate a post-assessment moderation report template to ensure consistency in marking.
       If toolType is 'feedback': Generate a structured assessment feedback form for the candidate, highlighting strengths and areas for improvement.
       If toolType is 'rpl': Generate an RPL (Recognition of Prior Learning) assessment plan and evidence requirement matrix.`
-        }
       });
 
-      const html = response.text || '';
+      const html = response.text() || '';
       const logoUrl = customLogo || profile?.institutionLogo || "https://lh3.googleusercontent.com/d/1SjQv4bgCcCO11gebydnHsnK8f1fnE0zl";
       const instName = institutionName || profile?.institutionName || "SMART TVET SYSTEMS";
 

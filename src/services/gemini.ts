@@ -1,13 +1,4 @@
-import { GoogleGenAI } from "@google/genai";
-import { getApiKey } from "../utils/apiKey";
-
-const getAI = () => {
-  const apiKey = getApiKey();
-  if (!apiKey) {
-    throw new Error("Gemini API Key not found in environment. Please provide VITE_GEMINI_API_KEY if hosting on Vercel.");
-  }
-  return new GoogleGenAI({ apiKey });
-};
+import { callGeminiWithRetry } from "../utils/ai";
 
 export const generateLearningPlan = async (params: {
   unitTitle: string;
@@ -22,18 +13,16 @@ export const generateLearningPlan = async (params: {
   curriculum: string;
   onStep: (step: string) => void;
 }) => {
-  const ai = getAI();
   const now = new Date();
   const currentDate = now.toLocaleDateString('en-GB');
   const totalSessions = parseInt(params.numWeeks) * parseInt(params.numLessons);
   const totalHours = totalSessions * 2;
 
   params.onStep('Extracting Metadata & Benchmarks...');
-  const metaResponse = await ai.models.generateContent({
-    model: 'gemini-3-flash-preview',
+  const metaResponse = await callGeminiWithRetry({
+    model: 'gemini-3.1-pro-preview',
     contents: `Curriculum: ${params.curriculum}. Create the metadata header and 9-column matrix start.`,
-    config: { 
-      systemInstruction: `You are a TVET CDACC expert. Generate a Metadata table and a Learning Plan table header in HTML.
+    systemInstruction: `You are a TVET CDACC expert. Generate a Metadata table and a Learning Plan table header in HTML.
   DO NOT use markdown blocks. Return ONLY HTML.
   
   Structure:
@@ -51,11 +40,10 @@ export const generateLearningPlan = async (params: {
      WEEK, SESSION NO, SESSION TITLE, LEARNING OUTCOMES, TRAINER ACTIVITIES, TRAINEE ACTIVITIES, Resources & Refs, Learning Checks/ Assessments, Reflections & Date.
   
   IMPORTANT: DO NOT CLOSE the <table> tag yet.`
-    }
   });
 
   const cleanResponse = (text: string | undefined) => text?.replace(/```html/g, '').replace(/```/g, '').trim() || '';
-  let finalHtml = cleanResponse(metaResponse.text) + '<tbody>';
+  let finalHtml = cleanResponse(metaResponse.text()) + '<tbody>';
 
   const rowBatchSize = 6;
   const numRowBatches = Math.ceil(totalSessions / rowBatchSize);
@@ -67,11 +55,10 @@ export const generateLearningPlan = async (params: {
     
     params.onStep(`Populating Sessions ${start} to ${end} (Week ${currentWeek})...`);
 
-    const rowResponse = await ai.models.generateContent({
-      model: 'gemini-3-flash-preview',
+    const rowResponse = await callGeminiWithRetry({
+      model: 'gemini-3.1-pro-preview',
       contents: `Generate matrix rows for sessions ${start} to ${end}.`,
-      config: {
-        systemInstruction: `You are a TVET CDACC expert. Generate EXACTLY ${end - start + 1} <tr> rows for the matrix.
+      systemInstruction: `You are a TVET CDACC expert. Generate EXACTLY ${end - start + 1} <tr> rows for the matrix.
     DO NOT include <table> or <thead>. Return ONLY <tr> elements.
     
     CRITICAL: EVERY ROW MUST HAVE EXACTLY 9 <td> CELLS:
@@ -86,10 +73,9 @@ export const generateLearningPlan = async (params: {
     9. Reflections & Date: "Completed on ___/___/${now.getFullYear()}"
 
     Every session is 2 HOURS. CURRICULUM: ${params.curriculum}`
-      }
     });
 
-    finalHtml += cleanResponse(rowResponse.text);
+    finalHtml += cleanResponse(rowResponse.text());
   }
 
   finalHtml += '</tbody></table>';

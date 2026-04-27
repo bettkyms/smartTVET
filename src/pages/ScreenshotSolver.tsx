@@ -1,4 +1,5 @@
 import React, { useState, useEffect, useRef } from 'react';
+import { callGeminiWithRetry } from '../utils/ai';
 import { GoogleGenAI } from "@google/genai";
 import { 
   Upload, 
@@ -100,16 +101,13 @@ const ScreenshotSolver: React.FC = () => {
 
     try {
       const base64Data = screenshot.split(',')[1];
-      const response = await ai.models.generateContent({
-        model: 'gemini-3-flash-preview',
-        contents: {
-          parts: [
-            { text: "Analyze this image of an educational problem, question, or diagram. Provide a clear, step-by-step explanation and the final solution." },
-            { inlineData: { data: base64Data, mimeType: "image/png" } }
-          ]
-        },
-        config: {
-          systemInstruction: `You are an expert TVET technical tutor. Your goal is to solve educational problems from screenshots with extreme clarity and step-by-step logic.
+      const response = await callGeminiWithRetry({
+        model: 'gemini-flash-latest',
+        contents: [
+          { text: "Analyze this image of an educational problem, question, or diagram. Provide a clear, step-by-step explanation and the final solution." },
+          { inlineData: { data: base64Data, mimeType: "image/png" } }
+        ],
+        systemInstruction: `You are an expert TVET technical tutor. Your goal is to solve educational problems from screenshots with extreme clarity and step-by-step logic.
 
 CRITICAL RULES:
 1. DO NOT use the '$' symbol for mathematical notation. Use plain text, standard symbols (like ^, *, /, sqrt), or HTML entities.
@@ -117,10 +115,9 @@ CRITICAL RULES:
 3. Ensure mathematical answers are clean, well-spaced, and easy to read.
 4. Format your response in Markdown. Use bold text for emphasis and clear numbered steps.
 5. If the problem is technical (e.g., electrical, mechanical), use professional terminology suitable for TVET students.`
-        }
       });
 
-      setAnalysis(response.text || '');
+      setAnalysis(response.text() || '');
     } catch (err: any) {
       console.error(err);
       setError("Error analyzing the screenshot. Please try again.");

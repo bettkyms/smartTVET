@@ -20,6 +20,7 @@ import { cn } from '../utils/cn';
 import { getApiKey } from '../utils/apiKey';
 import BrandingSection from '../components/BrandingSection';
 import { useAuth } from '../contexts/AuthContext';
+import { callGeminiWithRetry } from '../utils/ai';
 
 const AcademicArchitect: React.FC = () => {
   const { user, profile } = useAuth();
@@ -59,11 +60,10 @@ const AcademicArchitect: React.FC = () => {
     const ai = new GoogleGenAI({ apiKey });
 
     try {
-      const response = await ai.models.generateContent({
-        model: 'gemini-3-flash-preview',
+      const response = await callGeminiWithRetry({
+        model: 'gemini-3.1-pro-preview',
         contents: `Architect a ${archType} for the course: ${courseTitle} in the ${department} department. Ensure it follows international academic standards.`,
-        config: {
-          systemInstruction: `You are an Academic Architect and Curriculum Designer. Generate a professional ${archType === 'curriculum' ? 'Full Curriculum Structure' : archType === 'outline' ? 'Course Outline' : archType === 'mapping' ? 'Competency Map' : archType === 'scheme' ? 'Scheme of Work' : 'Resource List'} in HTML format.
+        systemInstruction: `You are an Academic Architect and Curriculum Designer. Generate a professional ${archType === 'curriculum' ? 'Full Curriculum Structure' : archType === 'outline' ? 'Course Outline' : archType === 'mapping' ? 'Competency Map' : archType === 'scheme' ? 'Scheme of Work' : 'Resource List'} in HTML format.
       DO NOT use markdown blocks. Return ONLY HTML.
       Use professional formatting with clear tables (border="1") and hierarchical structures.
       
@@ -72,10 +72,9 @@ const AcademicArchitect: React.FC = () => {
       If archType is 'mapping': Generate a competency mapping matrix linking skills to industry standards.
       If archType is 'scheme': Generate a detailed Scheme of Work (12 weeks) showing topics, sub-topics, teaching methods, and resources.
       If archType is 'resources': Generate a comprehensive list of required training resources (tools, equipment, materials, and references) for the course.`
-        }
       });
 
-      const html = response.text || '';
+      const html = response.text() || '';
       const logoUrl = customLogo || profile?.institutionLogo || "https://lh3.googleusercontent.com/d/1SjQv4bgCcCO11gebydnHsnK8f1fnE0zl";
       const instName = institutionName || profile?.institutionName || "SMART TVET SYSTEMS";
 
