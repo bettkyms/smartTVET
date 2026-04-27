@@ -1,9 +1,10 @@
 import { GoogleGenAI } from "@google/genai";
+import { getApiKey } from "../utils/apiKey";
 
 const getAI = () => {
-  const apiKey = process.env.GEMINI_API_KEY || process.env.API_KEY || import.meta.env.VITE_GEMINI_API_KEY || import.meta.env.VITE_API_KEY;
-  if (!apiKey || apiKey === 'undefined' || apiKey === 'null' || apiKey.trim() === '') {
-    throw new Error("Gemini API Key not found in environment. Please check your settings.");
+  const apiKey = getApiKey();
+  if (!apiKey) {
+    throw new Error("Gemini API Key not found in environment. Please provide VITE_GEMINI_API_KEY if hosting on Vercel.");
   }
   return new GoogleGenAI({ apiKey });
 };

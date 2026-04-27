@@ -164,7 +164,7 @@ const CurriculumExplorer: React.FC = () => {
 
     const apiKey = getApiKey();
     if (!apiKey) {
-      setError("Gemini API Key not configured.");
+      setError("Gemini API Key not found. If you are on Vercel, please provide VITE_GEMINI_API_KEY in project settings.");
       setIsGeneratingNotes(false);
       return;
     }
@@ -198,7 +198,7 @@ const CurriculumExplorer: React.FC = () => {
     setIsGeneratingQuiz(true);
     const apiKey = getApiKey();
     if (!apiKey) {
-      setError("Gemini API Key not configured.");
+      setError("Gemini API Key not found. If you are on Vercel, please provide VITE_GEMINI_API_KEY in project settings.");
       setIsGeneratingQuiz(false);
       return;
     }
@@ -234,7 +234,7 @@ const CurriculumExplorer: React.FC = () => {
 
     const apiKey = getApiKey();
     if (!apiKey) {
-      setError("Gemini API Key not configured.");
+      setError("Gemini API Key not found. If you are on Vercel, please provide VITE_GEMINI_API_KEY in project settings.");
       setIsChatLoading(false);
       return;
     }
@@ -275,7 +275,7 @@ const CurriculumExplorer: React.FC = () => {
 
     const apiKey = getApiKey();
     if (!apiKey) {
-      setError("Gemini API Key not configured.");
+      setError("Gemini API Key not found. If you are on Vercel, please provide VITE_GEMINI_API_KEY in project settings.");
       setIsLoading(false);
       return;
     }
