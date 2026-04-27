@@ -14,6 +14,7 @@ import {
   BookOpen,
   FileText,
   PenTool,
+  ClipboardList,
   Settings,
   Layers,
   Sun,
@@ -35,8 +36,9 @@ const Navbar: React.FC = () => {
     { name: 'Planner', path: '/dashboard', icon: LayoutDashboard },
     { name: 'Assessors Tool', path: '/assessors-tool', icon: PenTool },
     { name: 'Notes/Guides', path: '/curriculum-explorer', icon: BookOpen },
+    { name: 'RoW', path: '/record-of-work', icon: ClipboardList },
     { name: 'Solver', path: '/screenshot-solver', icon: Zap },
-    { name: 'Academic Architect', path: '/academic-architect', icon: FileText },
+    { name: 'Architect', path: '/academic-architect', icon: FileText },
   ];
 
   const isActive = (path: string) => location.pathname === path;

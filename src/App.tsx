@@ -7,6 +7,7 @@ import Profile from './pages/Profile';
 import CurriculumExplorer from './pages/CurriculumExplorer';
 import ScreenshotSolver from './pages/ScreenshotSolver';
 import AcademicArchitect from './pages/AcademicArchitect';
+import RecordOfWork from './pages/RecordOfWork';
 import AboutUs from './pages/AboutUs';
 import Contact from './pages/Contact';
 import AssessmentGeneratorMOD3 from './pages/AssessmentGeneratorMOD3';
@@ -50,7 +51,7 @@ const App: React.FC = () => {
 
 const AppContent: React.FC = () => {
   const location = useLocation();
-  const isAppPage = ['/dashboard', '/assessors-tool', '/curriculum-explorer', '/screenshot-solver', '/academic-architect'].includes(location.pathname);
+  const isAppPage = ['/dashboard', '/assessors-tool', '/curriculum-explorer', '/screenshot-solver', '/academic-architect', '/record-of-work'].includes(location.pathname);
 
   return (
     <div className="min-h-screen flex flex-col bg-slate-50">
@@ -96,6 +97,14 @@ const AppContent: React.FC = () => {
             element={
               <ProtectedRoute>
                 <AcademicArchitect />
+              </ProtectedRoute>
+            } 
+          />
+          <Route 
+            path="/record-of-work" 
+            element={
+              <ProtectedRoute>
+                <RecordOfWork />
               </ProtectedRoute>
             } 
           />

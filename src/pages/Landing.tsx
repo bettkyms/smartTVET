@@ -11,7 +11,8 @@ import {
   ArrowRight,
   Layout,
   Cpu,
-  Globe
+  Globe,
+  ClipboardList
 } from 'lucide-react';
 
 const Landing: React.FC = () => {
@@ -305,10 +306,10 @@ const Landing: React.FC = () => {
             {[
               { title: "Curriculum Mapping", icon: FileText, color: "text-indigo-400" },
               { title: "Assessment Gen", icon: Zap, color: "text-emerald-400" },
+              { title: "Record of Work", icon: ClipboardList, color: "text-orange-400" },
               { title: "Session Planning", icon: Layout, color: "text-amber-400" },
               { title: "Academic Architect", icon: Cpu, color: "text-rose-400" },
               { title: "Smart Import", icon: Globe, color: "text-violet-400" },
-              { title: "Cloud Sync", icon: Share2, color: "text-sky-400" }
             ].map((feature, i) => (
               <div key={i} className="bg-slate-900/50 backdrop-blur-sm border border-slate-800 p-10 rounded-[2.5rem] hover:bg-slate-800 transition-all group">
                 <div className="w-14 h-14 bg-white/5 rounded-2xl flex items-center justify-center mb-8 group-hover:scale-110 transition-transform">
