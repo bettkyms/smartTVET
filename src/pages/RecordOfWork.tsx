@@ -17,6 +17,7 @@ import {
 } from 'lucide-react';
 import { motion, AnimatePresence } from 'framer-motion';
 import { cn } from '../utils/cn';
+import BrandingSection from '../components/BrandingSection';
 import { useAuth } from '../contexts/AuthContext';
 
 const RecordOfWork: React.FC = () => {
@@ -213,6 +214,13 @@ const RecordOfWork: React.FC = () => {
              </div>
           </div>
 
+          <BrandingSection 
+            institutionName={institutionName}
+            setInstitutionName={setInstitutionName}
+            customLogo={customLogo}
+            setCustomLogo={setCustomLogo}
+          />
+
           <div className="space-y-4">
              <div className="flex items-center gap-2 mb-2">
                 <User className="w-4 h-4 text-indigo-600" />
@@ -226,16 +234,6 @@ const RecordOfWork: React.FC = () => {
                   placeholder="Trainer Name"
                   className="w-full px-5 py-3 bg-slate-50 dark:bg-slate-800 border border-slate-100 dark:border-slate-700 rounded-2xl focus:ring-4 focus:ring-indigo-500/10 outline-none text-sm font-bold transition-all dark:text-white"
                 />
-                 <div className="relative">
-                  <Building2 className="absolute left-4 top-1/2 -translate-y-1/2 w-4 h-4 text-slate-400" />
-                  <input 
-                    type="text" 
-                    value={institutionName}
-                    onChange={(e) => setInstitutionName(e.target.value)}
-                    placeholder="Institution Name"
-                    className="w-full pl-12 pr-5 py-3 bg-slate-50 dark:bg-slate-800 border border-slate-100 dark:border-slate-700 rounded-2xl focus:ring-4 focus:ring-indigo-500/10 outline-none text-sm font-bold transition-all dark:text-white"
-                  />
-                </div>
              </div>
           </div>
 

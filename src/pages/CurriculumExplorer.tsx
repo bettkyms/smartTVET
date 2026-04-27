@@ -19,6 +19,7 @@ import {
 } from 'lucide-react';
 import { motion, AnimatePresence } from 'framer-motion';
 import { cn } from '../utils/cn';
+import BrandingSection from '../components/BrandingSection';
 import { useAuth } from '../contexts/AuthContext';
 import mammoth from "mammoth";
 
@@ -59,7 +60,8 @@ const CurriculumExplorer: React.FC = () => {
   const [isChatLoading, setIsChatLoading] = useState(false);
   const [isLoading, setIsLoading] = useState(false);
   const [error, setError] = useState('');
-  const [customLogo, setCustomLogo] = useState('');
+  const [institutionName, setInstitutionName] = useState('');
+  const [customLogo, setCustomLogo] = useState<string | null>(null);
   const [isApiConfigured, setIsApiConfigured] = useState(false);
   const [activeMode, setActiveMode] = useState<'curriculum' | 'sessionPlan'>('curriculum');
 
@@ -68,6 +70,7 @@ const CurriculumExplorer: React.FC = () => {
     const keyIsAvailable = !!apiKey && apiKey.trim() !== '' && apiKey !== 'undefined';
     setIsApiConfigured(keyIsAvailable);
     if (profile?.institutionLogo) setCustomLogo(profile.institutionLogo);
+    if (profile?.institutionName) setInstitutionName(profile.institutionName);
   }, [profile]);
 
   const handleFileUpload = async (e: React.ChangeEvent<HTMLInputElement>, type: 'curriculum' | 'sessionPlan') => {
@@ -302,7 +305,7 @@ const CurriculumExplorer: React.FC = () => {
     if (!generatedNotes) return;
     const fileName = `${selectedItem?.title.replace(/ /g, '_')}_Notes.docx`;
     const logoUrl = customLogo || profile?.institutionLogo || "https://lh3.googleusercontent.com/d/1SjQv4bgCcCO11gebydnHsnK8f1fnE0zl";
-    const institutionName = profile?.institutionName || "Smart TVET Systems";
+    const instName = institutionName || profile?.institutionName || "Smart TVET Systems";
 
     const sourceHTML = `
       <html xmlns:o='urn:schemas-microsoft-com:office:office' xmlns:w='urn:schemas-microsoft-com:office:word' xmlns='http://www.w3.org/TR/REC-html40'>
@@ -321,11 +324,11 @@ const CurriculumExplorer: React.FC = () => {
         <div style="text-align: center; margin-bottom: 30px;">
           <img 
             src="${logoUrl}" 
-            alt="${institutionName} Logo" 
+            alt="${instName} Logo" 
             style="max-height: 60px; width: auto; display: inline-block; margin-bottom: 15px;" 
           />
           <h1 style="margin: 0; font-size: 24px;">${selectedItem?.title}</h1>
-          <p style="color: #64748b; font-size: 14px;">${institutionName} - ${curriculumData?.courseTitle || 'Academic Excellence'}</p>
+          <p style="color: #64748b; font-size: 14px;">${instName} - ${curriculumData?.courseTitle || 'Academic Excellence'}</p>
         </div>
         ${generatedNotes}
       </body>
@@ -400,16 +403,12 @@ const CurriculumExplorer: React.FC = () => {
                   <span className="text-[10px] font-black text-slate-400 uppercase tracking-widest">Upload .docx / .txt</span>
                 </div>
               </div>
-              <div className="space-y-3">
-                <label className="text-[10px] font-black text-slate-400 uppercase tracking-widest ml-1">Institution Logo URL</label>
-                <input 
-                  type="text" 
-                  value={customLogo}
-                  onChange={(e) => setCustomLogo(e.target.value)}
-                  placeholder="Paste logo URL (Optional)"
-                  className="w-full p-4 bg-slate-50 dark:bg-slate-800 border border-slate-200 dark:border-slate-700 rounded-2xl text-sm focus:ring-2 focus:ring-indigo-500 outline-none transition-all"
-                />
-              </div>
+              <BrandingSection 
+                institutionName={institutionName}
+                setInstitutionName={setInstitutionName}
+                customLogo={customLogo}
+                setCustomLogo={setCustomLogo}
+              />
               <button 
                 onClick={generateDashboard}
                 disabled={isLoading || !curriculumInput.trim()}

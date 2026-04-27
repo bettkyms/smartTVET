@@ -19,24 +19,6 @@ import { ThemeProvider } from './contexts/ThemeContext';
 import { MessageCircle } from 'lucide-react';
 import { useLocation } from 'react-router-dom';
 
-const ProtectedRoute: React.FC<{ children: React.ReactNode }> = ({ children }) => {
-  const { user, loading } = useAuth();
-  
-  if (loading) {
-    return (
-      <div className="min-h-screen flex items-center justify-center bg-slate-50">
-        <div className="w-12 h-12 border-4 border-indigo-200 border-t-indigo-600 rounded-full animate-spin" />
-      </div>
-    );
-  }
-  
-  if (!user) {
-    return <Navigate to="/auth" />;
-  }
-  
-  return <>{children}</>;
-};
-
 const App: React.FC = () => {
   return (
     <ThemeProvider>
@@ -59,65 +41,16 @@ const AppContent: React.FC = () => {
       <main className="flex-grow">
         <Routes>
           <Route path="/" element={<Landing />} />
-          <Route path="/auth" element={<Auth />} />
-          <Route 
-            path="/profile" 
-            element={
-              <ProtectedRoute>
-                <Profile />
-              </ProtectedRoute>
-            } 
-          />
-          <Route 
-            path="/assessors-tool" 
-            element={
-              <ProtectedRoute>
-                <AssessmentGeneratorMOD3 />
-              </ProtectedRoute>
-            } 
-          />
-          <Route 
-            path="/curriculum-explorer" 
-            element={
-              <ProtectedRoute>
-                <CurriculumExplorer />
-              </ProtectedRoute>
-            } 
-          />
-          <Route 
-            path="/screenshot-solver" 
-            element={
-              <ProtectedRoute>
-                <ScreenshotSolver />
-              </ProtectedRoute>
-            } 
-          />
-          <Route 
-            path="/academic-architect" 
-            element={
-              <ProtectedRoute>
-                <AcademicArchitect />
-              </ProtectedRoute>
-            } 
-          />
-          <Route 
-            path="/record-of-work" 
-            element={
-              <ProtectedRoute>
-                <RecordOfWork />
-              </ProtectedRoute>
-            } 
-          />
+          <Route path="/auth" element={<Navigate to="/" />} />
+          <Route path="/profile" element={<Profile />} />
+          <Route path="/assessors-tool" element={<AssessmentGeneratorMOD3 />} />
+          <Route path="/curriculum-explorer" element={<CurriculumExplorer />} />
+          <Route path="/screenshot-solver" element={<ScreenshotSolver />} />
+          <Route path="/academic-architect" element={<AcademicArchitect />} />
+          <Route path="/record-of-work" element={<RecordOfWork />} />
           <Route path="/about" element={<AboutUs />} />
           <Route path="/contact" element={<Contact />} />
-          <Route 
-            path="/dashboard" 
-            element={
-              <ProtectedRoute>
-                <Dashboard />
-              </ProtectedRoute>
-            } 
-          />
+          <Route path="/dashboard" element={<Dashboard />} />
           <Route path="*" element={<Navigate to="/" />} />
         </Routes>
       </main>

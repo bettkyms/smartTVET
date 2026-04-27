@@ -17,13 +17,15 @@ import {
 } from 'lucide-react';
 import { motion, AnimatePresence } from 'framer-motion';
 import { cn } from '../utils/cn';
+import BrandingSection from '../components/BrandingSection';
 import { useAuth } from '../contexts/AuthContext';
 
 const AcademicArchitect: React.FC = () => {
   const { user, profile } = useAuth();
   const [courseTitle, setCourseTitle] = useState('');
   const [department, setDepartment] = useState('');
-  const [customLogo, setCustomLogo] = useState('');
+  const [institutionName, setInstitutionName] = useState('');
+  const [customLogo, setCustomLogo] = useState<string | null>(null);
   const [archType, setArchType] = useState<'curriculum' | 'outline' | 'mapping' | 'scheme' | 'resources'>('curriculum');
   const [generatedArch, setGeneratedArch] = useState('');
   const [isLoading, setIsLoading] = useState(false);
@@ -35,6 +37,7 @@ const AcademicArchitect: React.FC = () => {
     const keyIsAvailable = !!apiKey && apiKey.trim() !== '' && apiKey !== 'undefined';
     setIsApiConfigured(keyIsAvailable);
     if (profile?.institutionLogo) setCustomLogo(profile.institutionLogo);
+    if (profile?.institutionName) setInstitutionName(profile.institutionName);
   }, [profile]);
 
   const handleGenerateArch = async () => {
@@ -73,19 +76,19 @@ const AcademicArchitect: React.FC = () => {
 
       const html = response.text || '';
       const logoUrl = customLogo || profile?.institutionLogo || "https://lh3.googleusercontent.com/d/1SjQv4bgCcCO11gebydnHsnK8f1fnE0zl";
-      const institutionName = profile?.institutionName || "SMART TVET SYSTEMS";
+      const instName = institutionName || profile?.institutionName || "SMART TVET SYSTEMS";
 
       setGeneratedArch(`
         <div class="prose max-w-none">
           <div style="text-align: center; margin-bottom: 30px; border-bottom: 2px solid #e2e8f0; padding-bottom: 20px;">
             <img 
               src="${logoUrl}" 
-              alt="${institutionName} Logo" 
+              alt="${instName} Logo" 
               style="max-height: 60px; width: auto; display: inline-block; margin-bottom: 15px;" 
               referrerPolicy="no-referrer"
             />
             <h1 style="font-size: 24px; font-weight: 800; text-transform: uppercase; margin: 0;">ACADEMIC ARCHITECT: ${archType.toUpperCase()}</h1>
-            <p style="font-size: 14px; color: #64748b; margin-top: 5px; font-weight: 600;">${institutionName.toUpperCase()} - ACADEMIC EXCELLENCE</p>
+            <p style="font-size: 14px; color: #64748b; margin-top: 5px; font-weight: 600;">${instName.toUpperCase()} - ACADEMIC EXCELLENCE</p>
           </div>
           
           <div style="background-color: rgba(248, 250, 252, 0.5); padding: 20px; border-radius: 12px; margin-bottom: 30px; border: 1px solid #e2e8f0;">
@@ -189,16 +192,12 @@ const AcademicArchitect: React.FC = () => {
             />
           </div>
 
-          <div className="space-y-4">
-            <label className="text-[10px] font-black text-slate-400 dark:text-slate-500 uppercase tracking-[0.2em] ml-1">Institution Logo URL</label>
-            <input 
-              type="text" 
-              value={customLogo}
-              onChange={(e) => setCustomLogo(e.target.value)}
-              placeholder="Paste logo URL (Optional)"
-              className="input-field"
-            />
-          </div>
+          <BrandingSection 
+            institutionName={institutionName}
+            setInstitutionName={setInstitutionName}
+            customLogo={customLogo}
+            setCustomLogo={setCustomLogo}
+          />
 
           <div className="space-y-4">
             <label className="text-[10px] font-black text-slate-400 dark:text-slate-500 uppercase tracking-[0.2em] ml-1">Architecture Type</label>

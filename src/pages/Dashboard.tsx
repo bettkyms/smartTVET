@@ -24,6 +24,7 @@ import {
 } from 'lucide-react';
 import { motion, AnimatePresence } from 'framer-motion';
 import { cn } from '../utils/cn';
+import BrandingSection from '../components/BrandingSection';
 import { useAuth } from '../contexts/AuthContext';
 import { db, handleFirestoreError, OperationType } from '../firebase';
 import { collection, addDoc, query, where, onSnapshot, serverTimestamp, deleteDoc, doc, updateDoc } from 'firebase/firestore';
@@ -45,12 +46,21 @@ const Dashboard: React.FC = () => {
   const [trainerNumber, setTrainerNumber] = useState(profile?.trainerNumber || '');
   const [institutionName, setInstitutionName] = useState(profile?.institutionName || '');
 
-  // Update fields when profile loads
+  useEffect(() => {
+    const apiKey = process.env.GEMINI_API_KEY || process.env.API_KEY || import.meta.env.VITE_GEMINI_API_KEY || import.meta.env.VITE_API_KEY;
+    const keyIsAvailable = !!apiKey && apiKey.trim() !== '' && apiKey !== 'undefined' && apiKey !== 'null';
+    setIsApiConfigured(keyIsAvailable);
+    if (!keyIsAvailable) {
+      console.warn("Gemini API Key is not configured. AI features will be disabled.");
+    }
+  }, []);
+
   useEffect(() => {
     if (profile) {
       if (!trainerName) setTrainerName(profile.displayName || '');
       if (!trainerNumber) setTrainerNumber(profile.trainerNumber || '');
       if (!institutionName) setInstitutionName(profile.institutionName || '');
+      if (profile.institutionLogo) setCustomLogo(profile.institutionLogo);
       if (level === 'Level 3') setLevel(profile.level || 'Level 3');
     }
   }, [profile]);
@@ -70,6 +80,7 @@ const Dashboard: React.FC = () => {
   const [error, setError] = useState('');
   const [activeTab, setActiveTab] = useState<'learningPlan' | 'sessionPlans'>('learningPlan');
   const [isApiConfigured, setIsApiConfigured] = useState(false);
+  const [customLogo, setCustomLogo] = useState<string | null>(null);
   const [logoSrc, setLogoSrc] = useState('');
   
   // Import feature states
@@ -98,10 +109,7 @@ const Dashboard: React.FC = () => {
 
   // --- ACTIONS ---
   const handleSavePlan = async () => {
-    if (!user) {
-      setError('Please sign in to save your drafts and access them later.');
-      return;
-    }
+    if (!user) return;
     if (!unitTitle || !learningPlan) return;
     
     setIsSaving(true);
@@ -175,22 +183,15 @@ const Dashboard: React.FC = () => {
     if (!keyIsAvailable) {
       console.warn("Gemini API Key is not configured. AI features will be disabled.");
     }
-  }, []);
-
-  const handleLogoUpload = (e: React.ChangeEvent<HTMLInputElement>) => {
-    const file = e.target.files?.[0];
-    if (file) {
-      const reader = new FileReader();
-      reader.onload = (loadEvent) => {
-        setLogoSrc(loadEvent.target?.result as string);
-      };
-      reader.readAsDataURL(file);
-    }
-  };
+    if (profile?.institutionName) setInstitutionName(profile.institutionName);
+    if (profile?.institutionLogo) setCustomLogo(profile.institutionLogo);
+  }, [profile]);
 
   const getLogoHtml = () => {
-    if (!logoSrc) return `<div style="text-align: center; margin-bottom: 20px; border-bottom: 2px solid #e2e8f0; padding-bottom: 20px;"><img src="https://lh3.googleusercontent.com/d/1SjQv4bgCcCO11gebydnHsnK8f1fnE0zl" alt="Smart TVET Systems Logo" style="max-height: 60px; width: auto; display: inline-block; margin-bottom: 10px;" referrerPolicy="no-referrer" /><p style="font-size: 10px; color: #64748b; font-weight: 700; text-transform: uppercase; letter-spacing: 1px; margin: 0;">Smart TVET Systems - Excellence in Training</p></div>`;
-    return `<div style="text-align: center; margin-bottom: 20px; border-bottom: 2px solid #e2e8f0; padding-bottom: 20px;"><img src="${logoSrc}" alt="Logo" style="max-height: 60px; width: auto; display: inline-block; margin-bottom: 10px;" /><p style="font-size: 10px; color: #64748b; font-weight: 700; text-transform: uppercase; letter-spacing: 1px; margin: 0;">Smart TVET Systems - Excellence in Training</p></div>`;
+    const logoUrl = customLogo || profile?.institutionLogo || "https://lh3.googleusercontent.com/d/1SjQv4bgCcCO11gebydnHsnK8f1fnE0zl";
+    const instName = institutionName || profile?.institutionName || "Smart TVET Systems";
+    
+    return `<div style="text-align: center; margin-bottom: 20px; border-bottom: 2px solid #e2e8f0; padding-bottom: 20px;"><img src="${logoUrl}" alt="${instName} Logo" style="max-height: 60px; width: auto; display: inline-block; margin-bottom: 10px;" referrerPolicy="no-referrer" /><p style="font-size: 10px; color: #64748b; font-weight: 700; text-transform: uppercase; letter-spacing: 1px; margin: 0;">${instName} - Excellence in Training</p></div>`;
   };
 
   const wrapWithHeader = (content: string, title: string) => {
@@ -656,16 +657,12 @@ const Dashboard: React.FC = () => {
                 />
               </div>
 
-              <div className="space-y-3">
-                <label className="text-[10px] font-black text-slate-400 dark:text-slate-500 uppercase tracking-[0.2em] px-1">Institution</label>
-                <input 
-                  type="text" 
-                  value={institutionName} 
-                  onChange={(e) => setInstitutionName(e.target.value)} 
-                  required 
-                  className="input-field"
-                />
-              </div>
+              <BrandingSection 
+                institutionName={institutionName}
+                setInstitutionName={setInstitutionName}
+                customLogo={customLogo}
+                setCustomLogo={setCustomLogo}
+              />
 
               <div className="grid grid-cols-2 gap-5">
                 <div className="space-y-3">

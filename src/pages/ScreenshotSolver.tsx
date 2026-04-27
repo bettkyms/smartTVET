@@ -12,6 +12,8 @@ import {
   Zap
 } from 'lucide-react';
 import { motion, AnimatePresence } from 'framer-motion';
+import BrandingSection from '../components/BrandingSection';
+import { useAuth } from '../contexts/AuthContext';
 import ReactMarkdown from 'react-markdown';
 import mermaid from 'mermaid';
 import { cn } from '../utils/cn';
@@ -42,17 +44,22 @@ const Mermaid: React.FC<{ chart: string }> = ({ chart }) => {
 };
 
 const ScreenshotSolver: React.FC = () => {
+  const { user, profile } = useAuth();
   const [screenshot, setScreenshot] = useState<string | null>(null);
   const [analysis, setAnalysis] = useState('');
   const [isAnalyzing, setIsAnalyzing] = useState(false);
   const [error, setError] = useState('');
   const [isApiConfigured, setIsApiConfigured] = useState(false);
+  const [institutionName, setInstitutionName] = useState('');
+  const [customLogo, setCustomLogo] = useState<string | null>(null);
 
   useEffect(() => {
     const apiKey = process.env.API_KEY || process.env.GEMINI_API_KEY || import.meta.env.VITE_API_KEY;
     const keyIsAvailable = !!apiKey && apiKey.trim() !== '' && apiKey !== 'undefined';
     setIsApiConfigured(keyIsAvailable);
-  }, []);
+    if (profile?.institutionLogo) setCustomLogo(profile.institutionLogo);
+    if (profile?.institutionName) setInstitutionName(profile.institutionName);
+  }, [profile]);
 
   const handleFileUpload = (e: React.ChangeEvent<HTMLInputElement>) => {
     const file = e.target.files?.[0];
@@ -124,9 +131,39 @@ CRITICAL RULES:
   const downloadSolution = () => {
     if (!analysis) return;
     const fileName = `Solution_${new Date().getTime()}.docx`;
+    const logoUrl = customLogo || profile?.institutionLogo || "https://lh3.googleusercontent.com/d/1SjQv4bgCcCO11gebydnHsnK8f1fnE0zl";
+    const instName = institutionName || profile?.institutionName || "SMART TVET SYSTEMS";
 
-    // Simple text-based docx generation for now
-    const blob = new Blob([analysis], { type: 'text/plain' });
+    const sourceHTML = `
+      <html xmlns:o='urn:schemas-microsoft-com:office:office' xmlns:w='urn:schemas-microsoft-com:office:word' xmlns='http://www.w3.org/TR/REC-html40'>
+      <head>
+        <meta charset='utf-8'>
+        <style>
+          @page { size: A4 portrait; margin: 1in; }
+          body { font-family: 'Arial', sans-serif; font-size: 11pt; line-height: 1.6; color: #333; }
+          h1, h2, h3 { color: #1e293b; border-bottom: 2px solid #e2e8f0; padding-bottom: 5px; margin-top: 20px; }
+          .header { text-align: center; margin-bottom: 40px; border-bottom: 2px solid #6366f1; padding-bottom: 20px; }
+          .logo { max-height: 60px; width: auto; display: inline-block; margin-bottom: 15px; }
+          .inst-name { font-size: 18px; font-weight: 800; text-transform: uppercase; margin: 0; color: #0f172a; }
+          .doc-title { font-size: 14px; font-weight: 600; color: #64748b; margin: 5px 0 0 0; }
+          table { width: 100%; border-collapse: collapse; margin: 20px 0; }
+          th, td { border: 1px solid #cbd5e1; padding: 10px; text-align: left; }
+          th { background-color: #f8fafc; font-weight: 700; color: #1e293b; }
+        </style>
+      </head>
+      <body>
+        <div class="header">
+          <img src="${logoUrl}" alt="Logo" class="logo" />
+          <h1 class="inst-name">${instName}</h1>
+          <p class="doc-title">SMART TVET AI SOLUTION SERVICE</p>
+        </div>
+        <div class="content">
+          ${analysis.replace(/\n/g, '<br/>')}
+        </div>
+      </body>
+      </html>`;
+
+    const blob = new Blob([sourceHTML], { type: 'application/msword' });
     const link = document.createElement('a');
     link.href = URL.createObjectURL(blob);
     link.download = fileName;
@@ -178,6 +215,13 @@ CRITICAL RULES:
                 )}
               </div>
 
+              <BrandingSection 
+                institutionName={institutionName}
+                setInstitutionName={setInstitutionName}
+                customLogo={customLogo}
+                setCustomLogo={setCustomLogo}
+                className="mb-8"
+              />
               <div className="flex-grow flex flex-col">
                 {!screenshot ? (
                   <div className="flex-grow relative group">

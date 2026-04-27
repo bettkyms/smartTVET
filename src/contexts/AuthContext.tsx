@@ -33,18 +33,28 @@ const AuthContext = createContext<AuthContextType>({
   logout: async () => {},
 });
 
+const GUEST_ID = 'public-guest-user';
+const GUEST_PROFILE: UserProfile = {
+  uid: GUEST_ID,
+  displayName: 'TVET Trainer',
+  email: 'guest@smart-tvet.app',
+  photoURL: '',
+  role: 'trainer',
+  subscription: 'pro',
+  createdAt: new Date()
+};
+
 export const AuthProvider: React.FC<{ children: React.ReactNode }> = ({ children }) => {
   const [user, setUser] = useState<FirebaseUser | null>(null);
-  const [profile, setProfile] = useState<UserProfile | null>(null);
+  const [profile, setProfile] = useState<UserProfile | null>(GUEST_PROFILE);
   const [loading, setLoading] = useState(true);
   const [isAuthReady, setIsAuthReady] = useState(false);
 
   useEffect(() => {
     const unsubscribeAuth = onAuthStateChanged(auth, (firebaseUser) => {
-      setUser(firebaseUser);
-      setIsAuthReady(true);
-      
       if (firebaseUser) {
+        setUser(firebaseUser);
+        setIsAuthReady(true);
         // Listen to user profile changes
         const unsubscribeProfile = onSnapshot(doc(db, 'users', firebaseUser.uid), (doc) => {
           if (doc.exists()) {
@@ -58,7 +68,9 @@ export const AuthProvider: React.FC<{ children: React.ReactNode }> = ({ children
         
         return () => unsubscribeProfile();
       } else {
-        setProfile(null);
+        setUser({ uid: GUEST_ID, displayName: 'Guest User', email: 'guest@smart-tvet.app' } as any);
+        setProfile(GUEST_PROFILE);
+        setIsAuthReady(true);
         setLoading(false);
       }
     });

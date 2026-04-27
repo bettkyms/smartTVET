@@ -21,10 +21,11 @@ import {
 } from 'lucide-react';
 import { motion, AnimatePresence } from 'framer-motion';
 import { cn } from '../utils/cn';
+import BrandingSection from '../components/BrandingSection';
 import { useAuth } from '../contexts/AuthContext';
 import mammoth from 'mammoth';
 import { saveAs } from 'file-saver';
-import { Document, Packer, Paragraph, TextRun, Table, TableRow, TableCell, WidthType, BorderStyle, AlignmentType, HeadingLevel } from 'docx';
+import { Document, Packer, Paragraph, TextRun, Table, TableRow, TableCell, WidthType, BorderStyle, AlignmentType, HeadingLevel, ImageRun } from 'docx';
 
 interface AssessmentSlot {
   id: number;
@@ -41,8 +42,8 @@ const AssessmentGeneratorMOD3: React.FC = () => {
   const [unitCode, setUnitCode] = useState('');
   const [knqfLevel, setKnqfLevel] = useState<number>(5);
   const [learningOutcomes, setLearningOutcomes] = useState('');
-  const [schoolName, setSchoolName] = useState('');
-  const [schoolLogo, setSchoolLogo] = useState('');
+  const [institutionName, setInstitutionName] = useState('');
+  const [customLogo, setCustomLogo] = useState<string | null>(null);
   
   const [activeSlot, setActiveSlot] = useState(1);
   const [slots, setSlots] = useState<AssessmentSlot[]>([
@@ -59,8 +60,8 @@ const AssessmentGeneratorMOD3: React.FC = () => {
     const keyIsAvailable = !!apiKey && apiKey.trim() !== '' && apiKey !== 'undefined';
     setIsApiConfigured(keyIsAvailable);
     
-    if (profile?.institutionName) setSchoolName(profile.institutionName);
-    if (profile?.institutionLogo) setSchoolLogo(profile.institutionLogo);
+    if (profile?.institutionName) setInstitutionName(profile.institutionName);
+    if (profile?.institutionLogo) setCustomLogo(profile.institutionLogo);
   }, [profile]);
 
   const updateSlot = (id: number, updates: Partial<AssessmentSlot>) => {
@@ -175,10 +176,34 @@ const AssessmentGeneratorMOD3: React.FC = () => {
 
     const { header, instructions, practicalTasks, resourceList, sectionA, sectionB } = slot.content;
     const isPractical = knqfLevel < 5;
+    
+    let logoImageRun: ImageRun | null = null;
+    try {
+      const logoUrl = customLogo || profile?.institutionLogo || "https://lh3.googleusercontent.com/d/1SjQv4bgCcCO11gebydnHsnK8f1fnE0zl";
+      const response = await fetch(logoUrl);
+      const blob = await response.blob();
+      const buffer = await blob.arrayBuffer();
+      
+      logoImageRun = new ImageRun({
+        data: buffer,
+        transformation: { width: 80, height: 80 },
+      });
+    } catch (err) {
+      console.error("Failed to load logo for docx:", err);
+    }
 
-    const children: any[] = [
+    const children: any[] = [];
+    
+    if (logoImageRun) {
+      children.push(new Paragraph({
+        children: [logoImageRun],
+        alignment: AlignmentType.CENTER,
+      }));
+    }
+
+    children.push(
       new Paragraph({
-        text: schoolName || "SMART TVET SYSTEMS",
+        text: institutionName || "SMART TVET SYSTEMS",
         heading: HeadingLevel.HEADING_1,
         alignment: AlignmentType.CENTER,
       }),
@@ -198,7 +223,7 @@ const AssessmentGeneratorMOD3: React.FC = () => {
       }),
       ...instructions.map((inst: string) => new Paragraph({ text: `• ${inst}`, bullet: { level: 0 } })),
       new Paragraph({ text: "" }),
-    ];
+    );
 
     if (isPractical && practicalTasks) {
       practicalTasks.forEach((task: any, idx: number) => {
@@ -318,28 +343,12 @@ const AssessmentGeneratorMOD3: React.FC = () => {
             />
           </div>
 
-          <div className="space-y-3">
-            <label className="text-[10px] font-black text-slate-400 dark:text-slate-500 uppercase tracking-[0.2em] ml-1">School Branding</label>
-            <div className="space-y-3">
-              <input 
-                type="text" 
-                value={schoolName}
-                onChange={(e) => setSchoolName(e.target.value)}
-                placeholder="Institution Name"
-                className="input-field"
-              />
-              <div className="relative">
-                <input 
-                  type="text" 
-                  value={schoolLogo}
-                  onChange={(e) => setSchoolLogo(e.target.value)}
-                  placeholder="Logo URL (Optional)"
-                  className="input-field pl-10"
-                />
-                <ImageIcon className="w-4 h-4 text-slate-400 absolute left-4 top-1/2 -translate-y-1/2" />
-              </div>
-            </div>
-          </div>
+          <BrandingSection 
+            institutionName={institutionName}
+            setInstitutionName={setInstitutionName}
+            customLogo={customLogo}
+            setCustomLogo={setCustomLogo}
+          />
         </div>
 
         <div className="mt-auto p-8 border-t border-slate-100 dark:border-slate-800">
